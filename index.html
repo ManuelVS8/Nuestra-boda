@@ -105,6 +105,15 @@
     position:relative;
     cursor:pointer;
     perspective:1200px;
+    animation:flotar-sobre 2.6s ease-in-out infinite;
+  }
+  @keyframes flotar-sobre{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-9px) rotate(-1deg); }
+  }
+  .sobre.abierto{ animation:none; }
+  @media (prefers-reduced-motion: reduce){
+    .sobre{ animation:none; }
   }
   .sobre-cuerpo{
     position:absolute; inset:0;
@@ -206,6 +215,16 @@
   }
   .hero-nombres .y{
     display:block; font-style:italic; font-size:.42em; color:var(--gold-soft); margin:4px 0;
+  }
+  .hero-nombres .letra{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .hero-nombres.letras-visibles .letra{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){
+    .hero-nombres .letra{ opacity:1; transform:none; transition:none; }
   }
   .hero-fecha{
     font-family:'Outfit',sans-serif; font-size:14px; letter-spacing:.22em; text-transform:uppercase;
@@ -667,8 +686,18 @@ document.getElementById('modal-cerrar').addEventListener('click', () => {
 /* =============================================================
    Rellenar contenido desde CONFIG
    ============================================================= */
+let contadorLetras = 0;
+function letraSpan(caracter, claseExtra = ''){
+  const html = `<span class="letra ${claseExtra}" style="transition-delay:${contadorLetras * 35}ms">${caracter === ' ' ? '&nbsp;' : caracter}</span>`;
+  contadorLetras++;
+  return html;
+}
+function textoEnLetras(texto){
+  return [...texto].map(c => letraSpan(c)).join('');
+}
+
 document.getElementById('hero-nombres').innerHTML =
-  `${CONFIG.novio}<span class="y">&amp;</span>${CONFIG.novia}`;
+  textoEnLetras(CONFIG.novio) + letraSpan('&', 'y') + textoEnLetras(CONFIG.novia);
 
 document.getElementById('sello-iniciales').textContent =
   (CONFIG.novio[0] || '') + '&' + (CONFIG.novia[0] || '');
@@ -723,6 +752,7 @@ function abrirInvitacion(){
   setTimeout(() => {
     pantallaSobre.classList.add('oculto');
     document.body.classList.remove('locked');
+    document.getElementById('hero-nombres').classList.add('letras-visibles');
   }, 900);
 
   // Aprovechamos el mismo toque del usuario para poder arrancar el audio
