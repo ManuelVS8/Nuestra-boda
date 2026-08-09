@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de confirmaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=EB+Garamond:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:      #FBF6EC;
+    --paper-soft: #FDFBF6;
+    --ink:        #2E3B2A;
+    --leaf:       #5B7A5B;
+    --leaf-soft:  #8FA688;
+    --gold:       #B8893C;
+    --gold-soft:  #E4CFA0;
+    --line:       #DCD0B4;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'EB Garamond', Georgia, serif; font-size:16px; line-height:1.5;
+  }
+  h1,h2,h3{ font-family:'Cormorant Garamond', serif; font-weight:600; margin:0; }
+  .eyebrow{
+    font-family:'Outfit', sans-serif; font-size:11px; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--leaf); font-weight:500;
+  }
+  button, input, select{ font-family:inherit; }
+
+  /* ---------- Pantalla de acceso ---------- */
+  #acceso{
+    min-height:100svh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .acceso-caja{
+    background:var(--paper-soft); border:1px solid var(--line); border-radius:16px;
+    padding:40px 30px; max-width:340px; width:100%; text-align:center;
+    box-shadow:0 20px 45px -25px rgba(46,59,42,.4);
+  }
+  .acceso-caja h1{ font-size:28px; margin:10px 0 4px; }
+  .acceso-caja p{ color:var(--leaf); font-size:15px; margin-bottom:20px; }
+  .acceso-caja input{
+    width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px;
+    background:var(--paper); font-size:16px; color:var(--ink); text-align:center;
+  }
+  .acceso-caja button{
+    width:100%; margin-top:14px; padding:13px; border:none; border-radius:10px;
+    background:var(--leaf); color:#fff; font-family:'Outfit',sans-serif; font-size:13px;
+    letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+  }
+  .acceso-caja button:hover{ background:var(--ink); }
+  #acceso-error{ color:#a54b3f; font-size:13px; margin-top:12px; min-height:16px; font-family:'Outfit',sans-serif; }
+
+  /* ---------- Panel ---------- */
+  #panel{ display:none; padding:28px 18px 60px; max-width:1000px; margin:0 auto; }
+  header.panel-header{
+    display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    margin-bottom:26px;
+  }
+  header.panel-header h1{ font-size:32px; }
+  .btn-secundario{
+    padding:9px 18px; border:1px solid var(--gold); border-radius:999px; background:transparent;
+    color:var(--ink); font-family:'Outfit',sans-serif; font-size:12px; letter-spacing:.08em;
+    text-transform:uppercase; cursor:pointer; transition:background .2s;
+  }
+  .btn-secundario:hover{ background:var(--gold); color:#fff; }
+
+  .stats{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:10px; margin-bottom:26px;
+  }
+  .stat{
+    background:var(--paper-soft); border:1px solid var(--line); border-radius:12px;
+    padding:16px 14px; text-align:center;
+  }
+  .stat strong{ display:block; font-family:'Cormorant Garamond',serif; font-size:30px; color:var(--leaf); }
+  .stat span{ font-family:'Outfit',sans-serif; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--leaf-soft); }
+
+  .bloque{
+    background:var(--paper-soft); border:1px solid var(--line); border-radius:14px;
+    padding:20px; margin-bottom:20px;
+  }
+  .bloque h2{ font-size:20px; margin-bottom:10px; }
+  .lista-conteo{ display:flex; flex-wrap:wrap; gap:8px; }
+  .lista-conteo span{
+    font-family:'Outfit',sans-serif; font-size:12.5px; background:var(--paper);
+    border:1px solid var(--line); border-radius:999px; padding:6px 12px;
+  }
+  .lista-conteo b{ color:var(--gold); }
+
+  .filtros{
+    display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;
+  }
+  .filtros input[type=text]{
+    flex:1; min-width:160px; padding:10px 14px; border:1px solid var(--line); border-radius:10px;
+    background:var(--paper-soft); font-size:15px;
+  }
+  .filtros select{
+    padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--paper-soft); font-size:14px;
+  }
+  .filtros label{
+    display:flex; align-items:center; gap:6px; font-family:'Outfit',sans-serif; font-size:13px;
+    border:1px solid var(--line); border-radius:10px; padding:0 12px; background:var(--paper-soft);
+  }
+
+  .tabla-scroll{ overflow-x:auto; border:1px solid var(--line); border-radius:14px; }
+  table{ width:100%; border-collapse:collapse; min-width:760px; background:var(--paper-soft); }
+  th, td{ padding:12px 14px; text-align:left; border-bottom:1px solid var(--line); font-size:14.5px; vertical-align:top; }
+  th{
+    font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--leaf); background:var(--paper); position:sticky; top:0;
+  }
+  tr:last-child td{ border-bottom:none; }
+  .badge{
+    display:inline-block; padding:3px 10px; border-radius:999px; font-family:'Outfit',sans-serif; font-size:11.5px;
+  }
+  .badge.si{ background:rgba(91,122,91,.15); color:var(--leaf); }
+  .badge.no{ background:rgba(165,75,63,.12); color:#a54b3f; }
+
+  #estado-vacio, #estado-carga{
+    text-align:center; padding:50px 20px; color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:13px;
+  }
+
+  footer{ text-align:center; padding:30px 0 10px; color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:11.5px; }
+</style>
+</head>
+<body>
+
+  <!-- ================= PANTALLA DE ACCESO ================= -->
+  <div id="acceso">
+    <div class="acceso-caja">
+      <span class="eyebrow">Solo para los novios</span>
+      <h1>Panel de confirmaciones</h1>
+      <p>Introduce la clave para ver quién viene</p>
+      <input type="password" id="input-token" placeholder="Clave" autocomplete="off">
+      <button id="btn-entrar">Entrar</button>
+      <p id="acceso-error"></p>
+    </div>
+  </div>
+
+  <!-- ================= PANEL ================= -->
+  <div id="panel">
+    <header class="panel-header">
+      <div>
+        <span class="eyebrow">Invitados</span>
+        <h1>Quién viene a la boda</h1>
+      </div>
+      <button class="btn-secundario" id="btn-actualizar">Actualizar</button>
+    </header>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="bloque" id="bloque-intolerancias">
+      <h2>Intolerancias para el catering</h2>
+      <div class="lista-conteo" id="lista-intolerancias"></div>
+    </div>
+
+    <div class="bloque" id="bloque-canciones">
+      <h2>Canciones pedidas</h2>
+      <div class="lista-conteo" id="lista-canciones"></div>
+    </div>
+
+    <div class="filtros">
+      <input type="text" id="buscar" placeholder="Buscar por nombre...">
+      <select id="filtro-asistencia">
+        <option value="todos">Todos</option>
+        <option value="si">Solo confirmados</option>
+        <option value="no">Solo los que no vienen</option>
+      </select>
+      <label><input type="checkbox" id="filtro-intolerancias"> Solo con intolerancias</label>
+    </div>
+
+    <div id="estado-carga">Cargando confirmaciones...</div>
+    <div id="estado-vacio" style="display:none;">Todavía no hay ninguna confirmación con estos filtros.</div>
+    <div class="tabla-scroll" id="tabla-scroll" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th><th>Asistencia</th><th>Personas</th>
+            <th>Intolerancias</th><th>Detalle</th><th>Canción</th><th>Mensaje</th><th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-cuerpo"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>Panel privado — no compartas este enlace en la invitación</footer>
+
+<script>
+/* =============================================================
+   CONFIGURACIÓN — edita esto
+   ============================================================= */
+const CONFIG = {
+  // La MISMA URL de Apps Script que usas en invitacion-boda.html
+  googleScriptUrl: "https://script.google.com/macros/s/AKfycbyEW8VQTpng4LO5-FjCK5OWeJR-4VcMO_h9VqmW1iYiTWTkM6AC4ZWIyhgdpIX8zIwPZg/exec",
+  // La MISMA clave que pusiste en TOKEN_ADMIN dentro de Code.gs
+  token: "BodaSM-MZlmff4QHL"
+};
+
+let confirmaciones = [];
+
+/* =============================================================
+   Acceso (comprobación simple del lado del cliente)
+   ============================================================= */
+const pantallaAcceso = document.getElementById('acceso');
+const panel = document.getElementById('panel');
+const inputToken = document.getElementById('input-token');
+const errorAcceso = document.getElementById('acceso-error');
+
+function intentarEntrar(){
+  if (inputToken.value.trim() === CONFIG.token && CONFIG.token !== "CAMBIA_ESTA_CLAVE") {
+    sessionStorage.setItem('claveAcceso', inputToken.value.trim());
+    pantallaAcceso.style.display = 'none';
+    panel.style.display = 'block';
+    cargarDatos();
+  } else {
+    errorAcceso.textContent = 'Clave incorrecta';
+  }
+}
+document.getElementById('btn-entrar').addEventListener('click', intentarEntrar);
+inputToken.addEventListener('keydown', e => { if (e.key === 'Enter') intentarEntrar(); });
+
+// Recordar acceso durante la sesión del navegador
+const claveGuardada = sessionStorage.getItem('claveAcceso');
+if (claveGuardada && claveGuardada === CONFIG.token) {
+  pantallaAcceso.style.display = 'none';
+  panel.style.display = 'block';
+  cargarDatos();
+}
+
+/* =============================================================
+   Cargar datos desde Apps Script
+   ============================================================= */
+async function cargarDatos(){
+  document.getElementById('estado-carga').style.display = 'block';
+  document.getElementById('estado-vacio').style.display = 'none';
+  document.getElementById('tabla-scroll').style.display = 'none';
+
+  if (!CONFIG.googleScriptUrl) {
+    document.getElementById('estado-carga').textContent = 'Falta configurar CONFIG.googleScriptUrl en este archivo.';
+    return;
+  }
+
+  try{
+    const resp = await fetch(`${CONFIG.googleScriptUrl}?token=${encodeURIComponent(CONFIG.token)}`);
+    const datos = await resp.json();
+    if (datos.error) {
+      document.getElementById('estado-carga').textContent = 'Clave rechazada por el servidor. Revisa TOKEN_ADMIN en Code.gs.';
+      return;
+    }
+    confirmaciones = datos;
+    document.getElementById('estado-carga').style.display = 'none';
+    pintarTodo();
+  } catch(err){
+    document.getElementById('estado-carga').textContent = 'No se han podido cargar los datos. Comprueba la conexión.';
+  }
+}
+document.getElementById('btn-actualizar').addEventListener('click', cargarDatos);
+
+/* =============================================================
+   Pintar estadísticas, listas y tabla
+   ============================================================= */
+function pintarTodo(){
+  pintarStats();
+  pintarListasConteo();
+  pintarTabla();
+}
+
+function pintarStats(){
+  const confirmados = confirmaciones.filter(c => c.asistencia === 'si');
+  const noVienen = confirmaciones.filter(c => c.asistencia === 'no');
+  const totalComensales = confirmados.reduce((s,c) => s + (parseInt(c.acompanantes) || 1), 0);
+  const conIntolerancias = confirmaciones.filter(c => c.intolerancias && c.intolerancias.trim() !== '');
+
+  const stats = [
+    { valor: confirmaciones.length, etiqueta: 'Respuestas' },
+    { valor: confirmados.length, etiqueta: 'Grupos confirmados' },
+    { valor: totalComensales, etiqueta: 'Comensales' },
+    { valor: noVienen.length, etiqueta: 'No vienen' },
+    { valor: conIntolerancias.length, etiqueta: 'Con intolerancias' }
+  ];
+  document.getElementById('stats').innerHTML = stats.map(s =>
+    `<div class="stat"><strong>${s.valor}</strong><span>${s.etiqueta}</span></div>`
+  ).join('');
+}
+
+function pintarListasConteo(){
+  const conteoIntol = {};
+  confirmaciones.forEach(c => {
+    (c.intolerancias || '').split(',').map(s => s.trim()).filter(Boolean).forEach(i => {
+      conteoIntol[i] = (conteoIntol[i] || 0) + 1;
+    });
+  });
+  const claves = Object.keys(conteoIntol);
+  document.getElementById('lista-intolerancias').innerHTML = claves.length
+    ? claves.map(k => `<span>${k} <b>×${conteoIntol[k]}</b></span>`).join('')
+    : '<span>Nadie ha marcado ninguna todavía</span>';
+
+  const canciones = confirmaciones.map(c => c.cancion).filter(Boolean);
+  document.getElementById('lista-canciones').innerHTML = canciones.length
+    ? canciones.map(c => `<span>🎵 ${c}</span>`).join('')
+    : '<span>Todavía no han llegado peticiones musicales</span>';
+}
+
+function pintarTabla(){
+  const texto = document.getElementById('buscar').value.trim().toLowerCase();
+  const filtroAsistencia = document.getElementById('filtro-asistencia').value;
+  const soloIntolerancias = document.getElementById('filtro-intolerancias').checked;
+
+  let filtradas = confirmaciones.filter(c => {
+    if (texto && !(c.nombre || '').toLowerCase().includes(texto)) return false;
+    if (filtroAsistencia !== 'todos' && c.asistencia !== filtroAsistencia) return false;
+    if (soloIntolerancias && !(c.intolerancias && c.intolerancias.trim())) return false;
+    return true;
+  });
+
+  const tablaScroll = document.getElementById('tabla-scroll');
+  const estadoVacio = document.getElementById('estado-vacio');
+
+  if (filtradas.length === 0) {
+    tablaScroll.style.display = 'none';
+    estadoVacio.style.display = 'block';
+    return;
+  }
+  estadoVacio.style.display = 'none';
+  tablaScroll.style.display = 'block';
+
+  document.getElementById('tabla-cuerpo').innerHTML = filtradas.map(c => {
+    const fecha = c.fecha ? new Date(c.fecha).toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
+    return `<tr>
+      <td>${escapar(c.nombre)}</td>
+      <td><span class="badge ${c.asistencia === 'si' ? 'si' : 'no'}">${c.asistencia === 'si' ? 'Sí viene' : 'No viene'}</span></td>
+      <td>${c.asistencia === 'si' ? (c.acompanantes || 1) : '–'}</td>
+      <td>${escapar(c.intolerancias) || '–'}</td>
+      <td>${escapar(c.intolerancias_detalle) || '–'}</td>
+      <td>${escapar(c.cancion) || '–'}</td>
+      <td>${escapar(c.mensaje) || '–'}</td>
+      <td>${fecha}</td>
+    </tr>`;
+  }).join('');
+}
+
+function escapar(texto){
+  if (!texto) return '';
+  const div = document.createElement('div');
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
+document.getElementById('buscar').addEventListener('input', pintarTabla);
+document.getElementById('filtro-asistencia').addEventListener('change', pintarTabla);
+document.getElementById('filtro-intolerancias').addEventListener('change', pintarTabla);
+</script>
+</body>
+</html>
