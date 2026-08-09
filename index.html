@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nos casamos</title>
+<meta name="description" content="Invitación de boda">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  /* =========================================================
+     CONFIGURACIÓN VISUAL — TOKENS
+     ========================================================= */
+  :root{
+    --paper:      #FBF6EC;
+    --paper-soft: #FDFBF6;
+    --ink:        #2E3B2A;
+    --leaf:       #5B7A5B;
+    --leaf-soft:  #8FA688;
+    --gold:       #B8893C;
+    --gold-soft:  #E4CFA0;
+    --blush:      #E7C9C3;
+    --line:       #DCD0B4;
+    --shadow:     0 20px 50px -20px rgba(46, 59, 42, 0.35);
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'EB Garamond', Georgia, serif;
+    font-size:18px;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  body.locked{ overflow:hidden; height:100vh; }
+
+  h1,h2,h3{
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-weight:500;
+    margin:0;
+    color:var(--ink);
+  }
+
+  .eyebrow{
+    font-family:'Outfit', sans-serif;
+    font-size:12px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--leaf);
+    font-weight:500;
+  }
+
+  a{ color:inherit; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  img.foto{
+    width:100%; height:100%;
+    object-fit:cover; display:block;
+  }
+
+  /* placeholder de foto: se activa solo si la imagen no carga */
+  .foto-placeholder{
+    width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px;
+    background:
+      repeating-linear-gradient(135deg, rgba(184,137,60,.07) 0 12px, transparent 12px 24px),
+      var(--paper-soft);
+    border:1.5px dashed var(--gold-soft);
+    color:var(--leaf);
+    text-align:center;
+    padding:20px;
+  }
+  .foto-placeholder svg{ width:34px; height:34px; opacity:.6; }
+  .foto-placeholder span{ font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:.05em; color:var(--leaf-soft); }
+
+  .divider{
+    display:flex; align-items:center; justify-content:center;
+    gap:14px; margin:0 auto; max-width:340px; padding:56px 24px 40px;
+  }
+  .divider .line{ flex:1; height:1px; background:var(--line); }
+  .divider svg{ width:26px; height:26px; color:var(--gold); flex-shrink:0; }
+
+  section{ position:relative; padding:0 22px; }
+  .wrap{ max-width:560px; margin:0 auto; }
+
+  /* =========================================================
+     PANTALLA DEL SOBRE (elemento de apertura)
+     ========================================================= */
+  #sobre-pantalla{
+    position:fixed; inset:0; z-index:999;
+    background: radial-gradient(circle at 50% 20%, #F4EDDC 0%, var(--paper) 65%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .8s ease, visibility .8s ease;
+  }
+  #sobre-pantalla.oculto{ opacity:0; visibility:hidden; pointer-events:none; }
+
+  .sobre{
+    width:min(78vw, 300px);
+    aspect-ratio:1.45;
+    position:relative;
+    cursor:pointer;
+    perspective:1200px;
+  }
+  .sobre-cuerpo{
+    position:absolute; inset:0;
+    background:var(--paper-soft);
+    border:1px solid var(--gold-soft);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .sobre-cuerpo::before{
+    /* pliegues inferiores del sobre */
+    content:'';
+    position:absolute; left:0; right:0; bottom:0; height:70%;
+    background:
+      linear-gradient(135deg, transparent 49.6%, var(--line) 50%, transparent 50.4%),
+      linear-gradient(-135deg, transparent 49.6%, var(--line) 50%, transparent 50.4%);
+  }
+  .sobre-tarjeta{
+    position:absolute; left:8%; right:8%; bottom:-6%; top:14%;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:2px;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .7s cubic-bezier(.2,.8,.2,1) .35s;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+  }
+  .sobre-tarjeta span{
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px; color:var(--leaf);
+    text-align:center; padding:0 14px;
+  }
+  .sobre-flap{
+    position:absolute; top:0; left:0; right:0; height:56%;
+    background:linear-gradient(160deg, var(--paper-soft), #F4EAD3);
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    transform-origin:top center;
+    transition:transform .8s cubic-bezier(.4,.1,.2,1);
+    z-index:3;
+    box-shadow:0 2px 6px rgba(0,0,0,.05);
+  }
+  .sello{
+    position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
+    width:52px; height:52px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #D2A75C, var(--gold) 70%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 8px rgba(0,0,0,.25);
+    z-index:4;
+    font-family:'Cormorant Garamond',serif; color:#fff; font-size:16px; letter-spacing:.03em;
+    transition:opacity .3s ease, transform .3s ease;
+  }
+
+  .sobre.abierto .sobre-flap{ transform:rotateX(180deg); }
+  .sobre.abierto .sello{ opacity:0; transform:translate(-50%,-50%) scale(.6); }
+  .sobre.abierto .sobre-tarjeta{ transform:translateY(-14%); }
+
+  #sobre-texto{
+    margin-top:34px; text-align:center;
+  }
+  #sobre-texto .eyebrow{ display:block; margin-bottom:8px; }
+  #sobre-texto p{
+    font-family:'Outfit',sans-serif; font-size:12px; color:var(--leaf-soft);
+    letter-spacing:.05em; margin-top:10px;
+    animation:pulso 2.2s ease-in-out infinite;
+  }
+  @keyframes pulso{ 0%,100%{opacity:.55;} 50%{opacity:1;} }
+
+  /* =========================================================
+     HERO
+     ========================================================= */
+  #hero{
+    min-height:100svh;
+    display:flex; align-items:flex-end;
+    padding:0;
+  }
+  .hero-foto{
+    position:absolute; inset:0;
+    filter:saturate(.92);
+  }
+  .hero-foto::after{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(46,59,42,.05) 0%, rgba(46,59,42,.15) 55%, rgba(46,59,42,.72) 100%);
+  }
+  .hero-contenido{
+    position:relative; z-index:2;
+    width:100%; padding:0 26px 56px;
+    text-align:center; color:#fff;
+  }
+  .hero-contenido .eyebrow{ color:var(--gold-soft); }
+  .hero-nombres{
+    font-size:clamp(46px,13vw,78px);
+    line-height:1;
+    margin:14px 0 6px;
+    text-shadow:0 4px 22px rgba(0,0,0,.28);
+  }
+  .hero-nombres .y{
+    display:block; font-style:italic; font-size:.42em; color:var(--gold-soft); margin:4px 0;
+  }
+  .hero-fecha{
+    font-family:'Outfit',sans-serif; font-size:14px; letter-spacing:.22em; text-transform:uppercase;
+    margin-top:14px; opacity:.92;
+  }
+  .scroll-cue{
+    position:relative; z-index:2; display:flex; justify-content:center; padding-bottom:22px;
+  }
+  .scroll-cue svg{ width:18px; height:18px; color:#fff; opacity:.75; animation:bajar 1.8s ease-in-out infinite; }
+  @keyframes bajar{ 0%,100%{transform:translateY(0);opacity:.4;} 50%{transform:translateY(6px);opacity:.9;} }
+
+  /* =========================================================
+     CUENTA ATRÁS
+     ========================================================= */
+  #cuenta-atras{ padding-top:6px; text-align:center; }
+  .cuenta-grid{
+    display:flex; justify-content:center; gap:10px; margin-top:26px; flex-wrap:wrap;
+  }
+  .cuenta-item{
+    background:var(--paper-soft);
+    border:1px solid var(--line);
+    border-radius:10px;
+    min-width:74px; padding:16px 10px;
+  }
+  .cuenta-item strong{
+    display:block; font-family:'Cormorant Garamond',serif; font-size:32px; color:var(--leaf);
+  }
+  .cuenta-item span{
+    font-family:'Outfit',sans-serif; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--leaf-soft);
+  }
+
+  /* =========================================================
+     TARJETAS DE INFO (ceremonia / celebración / vestimenta)
+     ========================================================= */
+  .tarjeta{
+    background:var(--paper-soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:34px 26px;
+    text-align:center;
+    box-shadow:0 14px 30px -22px rgba(46,59,42,.5);
+  }
+  .tarjeta + .tarjeta{ margin-top:22px; }
+  .tarjeta h2{ font-size:30px; margin-bottom:4px; }
+  .tarjeta .detalle{
+    margin-top:18px; font-size:17px;
+  }
+  .tarjeta .detalle b{ color:var(--leaf); font-weight:600; display:block; margin-bottom:2px; font-family:'Outfit',sans-serif; font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+  .boton{
+    display:inline-flex; align-items:center; gap:8px;
+    margin-top:20px; padding:12px 26px;
+    border:1px solid var(--gold);
+    border-radius:999px;
+    background:transparent;
+    color:var(--ink);
+    font-family:'Outfit',sans-serif; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+    text-decoration:none;
+    transition:background .25s ease, color .25s ease;
+  }
+  .boton:hover{ background:var(--gold); color:#fff; }
+  .boton.solido{ background:var(--leaf); border-color:var(--leaf); color:#fff; }
+  .boton.solido:hover{ background:var(--ink); border-color:var(--ink); }
+
+  /* =========================================================
+     GALERÍA
+     ========================================================= */
+  #galeria .wrap{ max-width:640px; }
+  .galeria-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+    margin-top:30px;
+  }
+  .galeria-grid .g1{ grid-column:span 2; grid-row:span 2; }
+  .galeria-item{
+    aspect-ratio:1; border-radius:8px; overflow:hidden; background:var(--paper-soft);
+  }
+  .galeria-grid .g1{ aspect-ratio:auto; }
+
+  /* =========================================================
+     FORMULARIO — INTOLERANCIAS Y CONFIRMACIÓN
+     ========================================================= */
+  #confirmar .tarjeta{ text-align:left; }
+  #confirmar h2{ text-align:center; }
+  #confirmar .intro{ text-align:center; margin-top:6px; color:var(--leaf); font-style:italic; }
+
+  .campo{ margin-top:20px; }
+  .campo label{
+    display:block; font-family:'Outfit',sans-serif; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--leaf); margin-bottom:8px;
+  }
+  .campo input[type=text],
+  .campo input[type=number],
+  .campo textarea{
+    width:100%; padding:12px 14px;
+    border:1px solid var(--line); border-radius:10px;
+    background:var(--paper);
+    font-family:'EB Garamond', serif; font-size:17px; color:var(--ink);
+  }
+  .campo textarea{ resize:vertical; min-height:70px; }
+  .campo input:focus, .campo textarea:focus{ outline:2px solid var(--gold-soft); outline-offset:1px; }
+
+  .radio-fila{ display:flex; gap:10px; }
+  .radio-fila label{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 8px; border:1px solid var(--line); border-radius:10px;
+    font-family:'Outfit',sans-serif; font-size:13px; text-transform:none; letter-spacing:0; cursor:pointer;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .radio-fila input{ accent-color:var(--leaf); }
+  .radio-fila label:has(input:checked){ border-color:var(--leaf); background:rgba(91,122,91,.08); }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    display:flex; align-items:center; gap:6px;
+    border:1px solid var(--line); border-radius:999px; padding:9px 14px;
+    font-family:'Outfit',sans-serif; font-size:13px; cursor:pointer;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .chip:has(input:checked){ border-color:var(--gold); background:rgba(184,137,60,.12); }
+  .chip input{ accent-color:var(--gold); }
+
+  #campo-acompanantes{ display:none; }
+  #campo-acompanantes.visible{ display:block; }
+
+  .enviar{
+    width:100%; margin-top:26px; padding:15px;
+    background:var(--leaf); color:#fff; border:none; border-radius:10px;
+    font-family:'Outfit',sans-serif; font-size:14px; letter-spacing:.1em; text-transform:uppercase;
+    transition:background .2s ease, transform .1s ease;
+  }
+  .enviar:hover{ background:var(--ink); }
+  .enviar:active{ transform:scale(.98); }
+  .enviar:disabled{ opacity:.6; cursor:wait; }
+
+  /* =========================================================
+     FOOTER
+     ========================================================= */
+  footer{
+    text-align:center; padding:60px 24px 46px; color:var(--leaf-soft);
+  }
+  footer .corazon{ width:20px; height:20px; margin-bottom:14px; color:var(--gold); }
+  footer p{ font-family:'Outfit',sans-serif; font-size:12px; letter-spacing:.06em; }
+  footer .hashtag{ margin-top:6px; color:var(--gold); font-style:italic; font-family:'Cormorant Garamond',serif; font-size:17px; }
+
+  /* =========================================================
+     MODAL / TOAST (sustituye a alert / confirm)
+     ========================================================= */
+  #modal-overlay{
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(46,59,42,.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    opacity:0; visibility:hidden;
+    transition:opacity .3s ease, visibility .3s ease;
+  }
+  #modal-overlay.visible{ opacity:1; visibility:visible; }
+  .modal-caja{
+    background:var(--paper-soft); border-radius:16px; padding:34px 28px;
+    max-width:360px; text-align:center;
+    transform:translateY(10px); transition:transform .3s ease;
+    box-shadow:var(--shadow);
+  }
+  #modal-overlay.visible .modal-caja{ transform:translateY(0); }
+  .modal-caja svg{ width:38px; height:38px; color:var(--leaf); margin-bottom:10px; }
+  .modal-caja h3{ font-size:24px; margin-bottom:8px; }
+  .modal-caja p{ font-size:16px; color:var(--ink); opacity:.85; margin-bottom:22px; }
+  .modal-caja button{
+    padding:10px 24px; border:none; border-radius:999px; background:var(--leaf); color:#fff;
+    font-family:'Outfit',sans-serif; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+  }
+
+  /* pétalos flotantes ambientales */
+  .petalo{
+    position:fixed; top:-20px; z-index:5; pointer-events:none;
+    width:10px; height:10px; border-radius:60% 0 60% 0;
+    background:var(--blush); opacity:.55;
+    animation:caer linear infinite;
+  }
+  @keyframes caer{
+    to{ transform:translateY(110vh) translateX(var(--drift,0px)) rotate(280deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .petalo{ display:none; }
+    .sobre-flap, .sobre-tarjeta, .sello, #sobre-pantalla, #modal-overlay, .modal-caja{ transition:none !important; animation:none !important; }
+  }
+
+  @media (min-width:640px){
+    body{ font-size:19px; }
+    .tarjeta{ padding:44px 40px; }
+  }
+
+  /* =========================================================
+     BOTÓN DE MÚSICA
+     ========================================================= */
+  #musica-toggle{
+    position:fixed; right:18px; bottom:18px; z-index:900;
+    width:50px; height:50px; border-radius:50%;
+    background:var(--paper-soft); border:1px solid var(--gold-soft);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 24px -12px rgba(46,59,42,.5);
+    transition:transform .2s ease, opacity .5s ease;
+    opacity:0; pointer-events:none;
+  }
+  #musica-toggle.visible{ opacity:1; pointer-events:auto; }
+  #musica-toggle:hover{ transform:scale(1.06); }
+  #musica-toggle svg{ width:20px; height:20px; color:var(--leaf); }
+  #musica-toggle .icono-pausada{ display:none; }
+  #musica-toggle.silenciada .icono-sonando{ display:none; }
+  #musica-toggle.silenciada .icono-pausada{ display:block; }
+  #musica-toggle.silenciada{ border-color:var(--line); }
+  #musica-toggle .anillo{
+    position:absolute; inset:-5px; border-radius:50%; border:1px solid var(--gold-soft);
+    animation:latido 2.6s ease-in-out infinite;
+  }
+  #musica-toggle.silenciada .anillo{ animation:none; opacity:0; }
+  @keyframes latido{
+    0%,100%{ transform:scale(1); opacity:.55; }
+    50%{ transform:scale(1.18); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    #musica-toggle .anillo{ animation:none; }
+  }
+</style>
+</head>
+<body class="locked">
+
+  <!-- ================= MÚSICA DE FONDO ================= -->
+  <audio id="musica-fondo" src="musica-boda.mp3" loop preload="auto"></audio>
+  <button id="musica-toggle" type="button" aria-label="Silenciar música">
+    <span class="anillo" aria-hidden="true"></span>
+    <svg class="icono-sonando" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+    <svg class="icono-pausada" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+  </button>
+
+  <!-- ================= PÉTALOS AMBIENTALES ================= -->
+  <div id="petalos"></div>
+
+  <!-- ================= PANTALLA DEL SOBRE ================= -->
+  <div id="sobre-pantalla">
+    <div class="sobre" id="sobre" role="button" tabindex="0" aria-label="Abrir invitación">
+      <div class="sobre-cuerpo">
+        <div class="sobre-tarjeta"><span>Estáis invitados</span></div>
+      </div>
+      <div class="sobre-flap">
+        <div class="sello" id="sello-iniciales">&amp;</div>
+      </div>
+    </div>
+    <div id="sobre-texto">
+      <span class="eyebrow">Tienes una invitación</span>
+      <p>Toca el sobre para abrirlo</p>
+    </div>
+  </div>
+
+  <!-- ================= HERO ================= -->
+  <section id="hero">
+    <div class="hero-foto">
+      <img class="foto" src="foto-portada.jpg" alt="Foto de portada"
+        onerror="this.replaceWith(crearPlaceholder('Sustituye por foto-portada.jpg (foto horizontal, ideal 1200×1600)'))">
+    </div>
+    <div class="hero-contenido">
+      <span class="eyebrow">Nos casamos</span>
+      <h1 class="hero-nombres" id="hero-nombres">Novia<span class="y">&amp;</span>Novio</h1>
+      <p class="hero-fecha" id="hero-fecha">Fecha por confirmar</p>
+    </div>
+    <div class="scroll-cue" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
+    </div>
+  </section>
+
+  <!-- ================= CUENTA ATRÁS ================= -->
+  <section id="cuenta-atras">
+    <div class="divider"><div class="line"></div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3c2 3-1 4-1 6 0 1.5 1.2 2.5 1.2 2.5S13 10 13 8.5c0-1.8-1.7-3.2-1-5.5z"/><path d="M12 12c-3 1.5-6 4-6 7.5S8.5 22 12 22s6-1 6-2.5-3-6-6-7.5z"/></svg><div class="line"></div></div>
+    <div class="wrap">
+      <span class="eyebrow">Falta muy poco</span>
+      <h2 style="font-size:26px; margin-top:6px;">Nos vemos pronto</h2>
+      <div class="cuenta-grid" id="cuenta-grid">
+        <div class="cuenta-item"><strong id="c-dias">–</strong><span>Días</span></div>
+        <div class="cuenta-item"><strong id="c-horas">–</strong><span>Horas</span></div>
+        <div class="cuenta-item"><strong id="c-min">–</strong><span>Min</span></div>
+        <div class="cuenta-item"><strong id="c-seg">–</strong><span>Seg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CEREMONIA Y CELEBRACIÓN ================= -->
+  <section id="detalles">
+    <div class="divider"><div class="line"></div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/></svg><div class="line"></div></div>
+    <div class="wrap">
+
+      <div class="tarjeta">
+        <span class="eyebrow">La ceremonia</span>
+        <h2>La misa</h2>
+        <p style="margin-top:10px; opacity:.8;">Os esperamos para acompañarnos en este momento tan especial.</p>
+        <div class="detalle">
+          <b>Fecha y hora</b>
+          <span id="cer-fechahora">Por confirmar</span>
+        </div>
+        <div class="detalle">
+          <b>Lugar</b>
+          <span id="cer-lugar">Por confirmar</span>
+        </div>
+        <div class="detalle">
+          <b>Dirección</b>
+          <span id="cer-direccion">Por confirmar</span>
+        </div>
+        <a class="boton" id="cer-mapa" href="#" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-12a7 7 0 1 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Cómo llegar
+        </a>
+      </div>
+
+      <div class="tarjeta">
+        <span class="eyebrow">Después, celebramos</span>
+        <h2>El convite</h2>
+        <div class="detalle">
+          <b>Hora</b>
+          <span id="cel-hora">Por confirmar</span>
+        </div>
+        <div class="detalle">
+          <b>Lugar</b>
+          <span id="cel-lugar">Por confirmar</span>
+        </div>
+        <p style="margin-top:18px; opacity:.75; font-style:italic;">Habrá música, baile y mucho cariño. Traed ganas de celebrar.</p>
+      </div>
+
+      <div class="tarjeta">
+        <span class="eyebrow">Un pequeño aviso</span>
+        <h2 style="font-size:26px;">Código de vestimenta</h2>
+        <p style="margin-top:10px;" id="vestimenta-texto">Elegante. Y si eres de tacón alto... el jardín tiene césped, avisado quedas 😉</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= GALERÍA ================= -->
+  <section id="galeria">
+    <div class="divider"><div class="line"></div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-4-4 3-3-2-6 5"/></svg><div class="line"></div></div>
+    <div class="wrap">
+      <div style="text-align:center;">
+        <span class="eyebrow">Un poco de nosotros</span>
+        <h2 style="font-size:28px; margin-top:6px;">Galería</h2>
+      </div>
+      <div class="galeria-grid">
+        <div class="galeria-item g1"><img class="foto" src="galeria-1.jpg" alt="Foto 1" onerror="this.replaceWith(crearPlaceholder('galeria-1.jpg'))"></div>
+        <div class="galeria-item"><img class="foto" src="galeria-2.jpg" alt="Foto 2" onerror="this.replaceWith(crearPlaceholder('galeria-2.jpg'))"></div>
+        <div class="galeria-item"><img class="foto" src="galeria-3.jpg" alt="Foto 3" onerror="this.replaceWith(crearPlaceholder('galeria-3.jpg'))"></div>
+        <div class="galeria-item"><img class="foto" src="galeria-4.jpg" alt="Foto 4" onerror="this.replaceWith(crearPlaceholder('galeria-4.jpg'))"></div>
+        <div class="galeria-item"><img class="foto" src="galeria-5.jpg" alt="Foto 5" onerror="this.replaceWith(crearPlaceholder('galeria-5.jpg (opcional)'))"></div>
+        <div class="galeria-item"><img class="foto" src="galeria-6.jpg" alt="Foto 6" onerror="this.replaceWith(crearPlaceholder('galeria-6.jpg (opcional)'))"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONFIRMACIÓN + INTOLERANCIAS ================= -->
+  <section id="confirmar">
+    <div class="divider"><div class="line"></div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M20 6L9 17l-5-5"/></svg><div class="line"></div></div>
+    <div class="wrap">
+      <div style="text-align:center;">
+        <span class="eyebrow">Antes del <span id="rsvp-fecha-limite">gran día</span></span>
+        <h2 style="font-size:28px; margin-top:6px;">Confirma tu asistencia</h2>
+        <p class="intro">Y cuéntanos si hay algo que no puedas comer — queremos que no os falte de nada.</p>
+      </div>
+
+      <form class="tarjeta" id="form-rsvp">
+        <div class="campo">
+          <label for="f-nombre">Nombre y apellidos</label>
+          <input type="text" id="f-nombre" name="nombre" required placeholder="¿Cómo os llamáis?">
+        </div>
+
+        <div class="campo">
+          <label>¿Vendrás a celebrarlo con nosotros?</label>
+          <div class="radio-fila">
+            <label><input type="radio" name="asistencia" value="si" checked> Sí, allí estaré 🎉</label>
+            <label><input type="radio" name="asistencia" value="no"> No podré ir 😢</label>
+          </div>
+        </div>
+
+        <div class="campo visible" id="campo-acompanantes">
+          <label for="f-acompanantes">¿Cuántos venís en total? (contándote a ti)</label>
+          <input type="number" id="f-acompanantes" name="acompanantes" min="1" max="12" value="1">
+        </div>
+
+        <div class="campo">
+          <label>Intolerancias o alergias alimentarias</label>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="intolerancia" value="Gluten"> Gluten</label>
+            <label class="chip"><input type="checkbox" name="intolerancia" value="Lactosa"> Lactosa</label>
+            <label class="chip"><input type="checkbox" name="intolerancia" value="Frutos secos"> Frutos secos</label>
+            <label class="chip"><input type="checkbox" name="intolerancia" value="Marisco"> Marisco</label>
+            <label class="chip"><input type="checkbox" name="intolerancia" value="Vegetariano/a"> Vegetariano/a</label>
+            <label class="chip"><input type="checkbox" name="intolerancia" value="Vegano/a"> Vegano/a</label>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="f-intol-detalle">Cuéntanoslo con detalle (nombre de cada persona + qué no puede tomar)</label>
+          <textarea id="f-intol-detalle" name="intolerancia_detalle" placeholder="Ej: Marta no puede tomar gluten, Pablo es alérgico a los frutos secos..."></textarea>
+        </div>
+
+        <div class="campo">
+          <label for="f-cancion">Una canción que no puede faltar en la fiesta</label>
+          <input type="text" id="f-cancion" name="cancion" placeholder="Título y artista">
+        </div>
+
+        <div class="campo">
+          <label for="f-mensaje">Un mensaje para los novios (opcional)</label>
+          <textarea id="f-mensaje" name="mensaje" placeholder="Lo que os apetezca decirles..."></textarea>
+        </div>
+
+        <button type="submit" class="enviar" id="btn-enviar">Confirmar asistencia</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <svg class="corazon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-5-10-9.5C.3 7.8 2.5 4 6.3 4c2 0 3.6 1.1 4.7 2.8C12.1 5.1 13.7 4 15.7 4 19.5 4 21.7 7.8 20 11.5 18.5 16 12 21 12 21z"/></svg>
+    <p>Con muchísimo cariño</p>
+    <p class="hashtag" id="footer-hashtag">#NosCasamos</p>
+  </footer>
+
+  <!-- ================= MODAL / TOAST ================= -->
+  <div id="modal-overlay">
+    <div class="modal-caja" id="modal-caja">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg>
+      <h3 id="modal-titulo">¡Gracias!</h3>
+      <p id="modal-texto">Hemos recibido tu confirmación.</p>
+      <button id="modal-cerrar">Vale</button>
+    </div>
+  </div>
+
+<script>
+/* =============================================================
+   CONFIGURACIÓN — edita SOLO esto para personalizar la invitación
+   ============================================================= */
+const CONFIG = {
+  novia: "Nombre Novia",
+  novio: "Nombre Novio",
+
+  // Fecha y hora de la ceremonia en formato ISO: "AAAA-MM-DDTHH:MM:00"
+  fechaHoraCeremonia: "2026-09-19T13:00:00",
+  lugarCeremonia: "Iglesia de Nuestra Señora de El Valle",
+  direccionCeremonia: "La Palma del Condado, Huelva",
+  enlaceMapaCeremonia: "https://maps.google.com/?q=Iglesia+La+Palma+del+Condado",
+
+  horaCelebracion: "16:00 h",
+  lugarCelebracion: "Por confirmar",
+
+  vestimenta: "Elegante. Y si eres de tacón alto... el jardín tiene césped, avisado quedas 😉",
+
+  // Fecha límite para confirmar asistencia (solo para mostrar el texto)
+  fechaLimiteRSVP: "30 de agosto",
+
+  hashtag: "#NombreYNombreSeCasan",
+
+  // URL del Google Apps Script (Web App) que recibirá las confirmaciones.
+  // Sigue el mismo patrón que ya usas en tus juegos: Apps Script -> Google Sheets.
+  // Deja "" mientras no lo tengas configurado: el formulario avisará por pantalla.
+  googleScriptUrl: ""
+};
+
+/* =============================================================
+   Utilidades
+   ============================================================= */
+function crearPlaceholder(texto){
+  const div = document.createElement('div');
+  div.className = 'foto-placeholder';
+  div.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+      <rect x="3" y="5" width="18" height="14" rx="2"/>
+      <circle cx="8.5" cy="10" r="1.5"/>
+      <path d="M21 16l-5-4-4 3-3-2-6 5"/>
+    </svg>
+    <span>${texto}</span>`;
+  return div;
+}
+
+function abrirModal(titulo, texto){
+  document.getElementById('modal-titulo').textContent = titulo;
+  document.getElementById('modal-texto').textContent = texto;
+  document.getElementById('modal-overlay').classList.add('visible');
+}
+document.getElementById('modal-cerrar').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.remove('visible');
+});
+
+/* =============================================================
+   Rellenar contenido desde CONFIG
+   ============================================================= */
+document.getElementById('hero-nombres').innerHTML =
+  `${CONFIG.novia}<span class="y">&amp;</span>${CONFIG.novio}`;
+
+document.getElementById('sello-iniciales').textContent =
+  (CONFIG.novia[0] || '') + '&' + (CONFIG.novio[0] || '');
+
+const fechaBoda = new Date(CONFIG.fechaHoraCeremonia);
+const formatoFechaLarga = new Intl.DateTimeFormat('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+const formatoHora = new Intl.DateTimeFormat('es-ES', { hour:'2-digit', minute:'2-digit' });
+
+if (!isNaN(fechaBoda)) {
+  document.getElementById('hero-fecha').textContent = formatoFechaLarga.format(fechaBoda);
+  document.getElementById('cer-fechahora').textContent =
+    `${formatoFechaLarga.format(fechaBoda)} · ${formatoHora.format(fechaBoda)}`;
+}
+document.getElementById('cer-lugar').textContent = CONFIG.lugarCeremonia;
+document.getElementById('cer-direccion').textContent = CONFIG.direccionCeremonia;
+document.getElementById('cer-mapa').href = CONFIG.enlaceMapaCeremonia;
+document.getElementById('cel-hora').textContent = CONFIG.horaCelebracion;
+document.getElementById('cel-lugar').textContent = CONFIG.lugarCelebracion;
+document.getElementById('vestimenta-texto').textContent = CONFIG.vestimenta;
+document.getElementById('rsvp-fecha-limite').textContent = CONFIG.fechaLimiteRSVP;
+document.getElementById('footer-hashtag').textContent = CONFIG.hashtag;
+
+/* =============================================================
+   Cuenta atrás
+   ============================================================= */
+function actualizarCuenta(){
+  const ahora = new Date();
+  let diff = fechaBoda - ahora;
+  if (isNaN(diff) || diff < 0) diff = 0;
+  const dias  = Math.floor(diff / 86400000);
+  const horas = Math.floor((diff % 86400000) / 3600000);
+  const min   = Math.floor((diff % 3600000) / 60000);
+  const seg   = Math.floor((diff % 60000) / 1000);
+  document.getElementById('c-dias').textContent  = dias;
+  document.getElementById('c-horas').textContent = String(horas).padStart(2,'0');
+  document.getElementById('c-min').textContent   = String(min).padStart(2,'0');
+  document.getElementById('c-seg').textContent   = String(seg).padStart(2,'0');
+}
+actualizarCuenta();
+setInterval(actualizarCuenta, 1000);
+
+/* =============================================================
+   Sobre — apertura de la invitación
+   ============================================================= */
+const sobre = document.getElementById('sobre');
+const pantallaSobre = document.getElementById('sobre-pantalla');
+const musica = document.getElementById('musica-fondo');
+const botonMusica = document.getElementById('musica-toggle');
+
+function abrirInvitacion(){
+  sobre.classList.add('abierto');
+  setTimeout(() => {
+    pantallaSobre.classList.add('oculto');
+    document.body.classList.remove('locked');
+  }, 900);
+
+  // Aprovechamos el mismo toque del usuario para poder arrancar el audio
+  // (los navegadores bloquean el autoplay con sonido si no hay una interacción previa)
+  musica.volume = 0.55;
+  musica.play().then(() => {
+    botonMusica.classList.remove('silenciada');
+    botonMusica.classList.add('visible');
+  }).catch(() => {
+    // Si el navegador lo bloquea igualmente, dejamos el botón visible pero en pausa
+    botonMusica.classList.add('silenciada', 'visible');
+  });
+}
+sobre.addEventListener('click', abrirInvitacion);
+sobre.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirInvitacion(); }
+});
+
+botonMusica.addEventListener('click', () => {
+  if (musica.paused) {
+    musica.play().catch(() => {});
+    botonMusica.classList.remove('silenciada');
+    botonMusica.setAttribute('aria-label', 'Silenciar música');
+  } else {
+    musica.pause();
+    botonMusica.classList.add('silenciada');
+    botonMusica.setAttribute('aria-label', 'Activar música');
+  }
+});
+
+/* =============================================================
+   Pétalos ambientales (decorativo, discreto)
+   ============================================================= */
+const contenedorPetalos = document.getElementById('petalos');
+const prefiereMenosMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!prefiereMenosMovimiento) {
+  for (let i = 0; i < 9; i++){
+    const p = document.createElement('div');
+    p.className = 'petalo';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.setProperty('--drift', (Math.random() * 80 - 40) + 'px');
+    p.style.animationDuration = (14 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 20) + 's';
+    p.style.opacity = (0.3 + Math.random() * 0.3).toFixed(2);
+    contenedorPetalos.appendChild(p);
+  }
+}
+
+/* =============================================================
+   Formulario de confirmación
+   ============================================================= */
+const radiosAsistencia = document.querySelectorAll('input[name="asistencia"]');
+const campoAcompanantes = document.getElementById('campo-acompanantes');
+radiosAsistencia.forEach(r => r.addEventListener('change', () => {
+  campoAcompanantes.classList.toggle('visible', document.querySelector('input[name="asistencia"]:checked').value === 'si');
+}));
+
+document.getElementById('form-rsvp').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const boton = document.getElementById('btn-enviar');
+  const datos = new FormData(this);
+
+  const intolerancias = datos.getAll('intolerancia');
+  const payload = {
+    nombre: datos.get('nombre'),
+    asistencia: datos.get('asistencia'),
+    acompanantes: datos.get('asistencia') === 'si' ? datos.get('acompanantes') : 0,
+    intolerancias: intolerancias.join(', '),
+    intolerancias_detalle: datos.get('intolerancia_detalle'),
+    cancion: datos.get('cancion'),
+    mensaje: datos.get('mensaje'),
+    fecha_envio: new Date().toISOString()
+  };
+
+  if (!CONFIG.googleScriptUrl) {
+    abrirModal('Casi listo', 'Falta conectar el formulario a tu Google Sheet (variable googleScriptUrl en el código). Mientras tanto, aquí tienes los datos que se habrían enviado: ' + JSON.stringify(payload));
+    return;
+  }
+
+  boton.disabled = true;
+  boton.textContent = 'Enviando...';
+  try{
+    // Mismo patrón no-cors que usas en tus otros juegos con Apps Script
+    await fetch(CONFIG.googleScriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    this.reset();
+    campoAcompanantes.classList.add('visible');
+    abrirModal('¡Gracias!', payload.asistencia === 'si'
+      ? 'Hemos recibido tu confirmación. ¡Nos hace muchísima ilusión veros allí! 🎉'
+      : 'Hemos recibido tu respuesta. Se os echará de menos ese día ❤️');
+  } catch(err){
+    abrirModal('Algo ha fallado', 'No hemos podido enviar tu confirmación. Prueba de nuevo en unos minutos.');
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Confirmar asistencia';
+  }
+});
+</script>
+</body>
+</html>
