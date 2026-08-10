@@ -207,10 +207,6 @@
     font-size:clamp(46px,13vw,78px);
     line-height:1;
     margin:14px 0 6px;
-    background:linear-gradient(135deg, #EDD9AE 0%, var(--gold) 55%, #9C6B33 100%);
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
     filter:drop-shadow(0 4px 16px rgba(0,0,0,.35));
   }
   .hero-nombres .y{
@@ -221,6 +217,10 @@
     opacity:0;
     transform:translateY(18px);
     transition:opacity .6s ease, transform .6s ease;
+    background:linear-gradient(135deg, #EDD9AE 0%, var(--gold) 55%, #9C6B33 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
   }
   .hero-nombres.letras-visibles .letra{ opacity:1; transform:translateY(0); }
   @media (prefers-reduced-motion: reduce){
@@ -445,6 +445,7 @@
 
   <!-- ================= MÚSICA DE FONDO ================= -->
   <audio id="musica-fondo" src="musica-boda.mp3" loop preload="auto"></audio>
+  <audio id="sonido-papel" src="papel-sobre.mp3" preload="auto"></audio>
   <button id="musica-toggle" type="button" aria-label="Silenciar música">Silenciar música</button>
 
   <!-- ================= PÉTALOS AMBIENTALES ================= -->
@@ -746,9 +747,12 @@ const sobre = document.getElementById('sobre');
 const pantallaSobre = document.getElementById('sobre-pantalla');
 const musica = document.getElementById('musica-fondo');
 const botonMusica = document.getElementById('musica-toggle');
+const sonidoPapel = document.getElementById('sonido-papel');
 
 function abrirInvitacion(){
   sobre.classList.add('abierto');
+  sonidoPapel.currentTime = 0;
+  sonidoPapel.play().catch(() => {});
   setTimeout(() => {
     pantallaSobre.classList.add('oculto');
     document.body.classList.remove('locked');
