@@ -656,7 +656,7 @@ function pintarListaInvitaciones(){
   contenedor.innerHTML = filtradas.map(inv => {
     const nombres = inv.invitados || [];
     const principal = nombres[0] || '(sin nombre)';
-    const resto = nombres.length > 1 ? `<span> +${nombres.length - 1}</span>` : '';
+    const resto = nombres.length > 1 ? `<span> (${nombres.length})</span>` : '';
     const tieneIntolerancia = inv.intolerancias && inv.intolerancias.trim() !== '';
     const fecha = inv.fecha ? new Date(inv.fecha).toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
 
@@ -753,7 +753,7 @@ function pintarMesas(){
     const llena = ocupados >= mesa.capacidad;
     const invitadosMesa = invitadosDeMesa(mesa.id);
     const filas = invitadosMesa.length
-      ? invitadosMesa.map(inv => `<li>${escapar((inv.invitados && inv.invitados[0]) || '(sin nombre)')}${inv.invitados && inv.invitados.length > 1 ? ' +' + (inv.invitados.length - 1) : ''}</li>`).join('')
+      ? invitadosMesa.map(inv => `<li>${escapar((inv.invitados && inv.invitados[0]) || '(sin nombre)')}${inv.invitados && inv.invitados.length > 1 ? ' (' + inv.invitados.length + ')' : ''}</li>`).join('')
       : '';
 
     return `
@@ -795,7 +795,7 @@ function pintarAsignaciones(){
     return `
       <div class="asignacion-item">
         <div class="asignacion-nombre">
-          ${escapar(principal)}${nombres.length > 1 ? ' +' + (nombres.length - 1) : ''}
+          ${escapar(principal)}${nombres.length > 1 ? ' (' + nombres.length + ')' : ''}
           <span>${nombres.length} ${nombres.length === 1 ? 'persona' : 'personas'}</span>
         </div>
         <select onchange="asignarMesa('${inv.id}', this.value)">
