@@ -215,8 +215,21 @@
   }
   .mesa-ocupacion.completa{ background:rgba(184,137,60,.18); color:var(--gold); }
   .mesa-invitados-lista{ list-style:none; padding:0; margin:0 0 10px; font-size:14.5px; }
-  .mesa-invitados-lista li{ padding:3px 0; border-bottom:1px dashed var(--line); }
+  .mesa-invitados-lista li{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:5px 0; border-bottom:1px dashed var(--line);
+  }
   .mesa-invitados-lista li:last-child{ border-bottom:none; }
+  .btn-quitar-invitado-mesa{
+    flex-shrink:0; width:24px; height:24px; border:none; border-radius:6px;
+    background:transparent; color:var(--leaf-soft); font-size:16px; line-height:1;
+  }
+  .btn-quitar-invitado-mesa:hover{ background:var(--line); color:#a54b3f; }
+  .select-anadir-mesa{
+    width:100%; padding:9px 10px; border:1px dashed var(--gold); border-radius:8px;
+    background:transparent; color:var(--leaf); font-family:'Outfit',sans-serif; font-size:12.5px;
+    margin-bottom:10px;
+  }
   .mesa-vacia{ color:var(--leaf-soft); font-size:13px; font-style:italic; }
   .btn-borrar-mesa{
     background:none; border:none; color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:11.5px;
@@ -750,11 +763,33 @@ function pintarMesas(){
   const grid = document.getElementById('mesas-grid');
   grid.innerHTML = mesas.map(mesa => {
     const ocupados = ocupacionMesa(mesa.id);
+    const libres = mesa.capacidad - ocupados;
     const llena = ocupados >= mesa.capacidad;
     const invitadosMesa = invitadosDeMesa(mesa.id);
     const filas = invitadosMesa.length
-      ? invitadosMesa.map(inv => `<li>${escapar((inv.invitados && inv.invitados[0]) || '(sin nombre)')}${inv.invitados && inv.invitados.length > 1 ? ' (' + inv.invitados.length + ')' : ''}</li>`).join('')
+      ? invitadosMesa.map(inv => {
+          const nombre = (inv.invitados && inv.invitados[0]) || '(sin nombre)';
+          const cuenta = inv.invitados && inv.invitados.length > 1 ? ` (${inv.invitados.length})` : '';
+          return `<li>
+            <span>${escapar(nombre)}${cuenta}</span>
+            <button class="btn-quitar-invitado-mesa" onclick="asignarMesa('${inv.id}', '')" aria-label="Quitar de la mesa">&times;</button>
+          </li>`;
+        }).join('')
       : '';
+
+    // Invitaciones que aún caben en esta mesa (no asignadas a otra, o ya en esta)
+    const disponibles = confirmaciones.filter(c => {
+      if (c.asistencia !== 'si') return false;
+      const mesaActual = asignaciones[c.id] || '';
+      if (mesaActual === mesa.id) return false; // ya está aquí
+      if (mesaActual) return false; // está en otra mesa: no se puede duplicar
+      return totalPersonas(c) <= libres;
+    });
+
+    const opcionesAnadir = disponibles.map(c => {
+      const nombre = (c.invitados && c.invitados[0]) || '(sin nombre)';
+      return `<option value="${c.id}">${escapar(nombre)} (${totalPersonas(c)})</option>`;
+    }).join('');
 
     return `
       <div class="mesa-card">
@@ -765,6 +800,10 @@ function pintarMesas(){
         ${invitadosMesa.length
           ? `<ul class="mesa-invitados-lista">${filas}</ul>`
           : `<p class="mesa-vacia">Todavía sin invitados</p>`}
+        <select class="select-anadir-mesa" onchange="if(this.value){ asignarMesa(this.value, '${mesa.id}'); this.value=''; }">
+          <option value="">${disponibles.length ? '+ Añadir invitado a esta mesa' : 'No caben más invitaciones'}</option>
+          ${opcionesAnadir}
+        </select>
         <button class="btn-borrar-mesa" onclick="borrarMesa('${mesa.id}')">Eliminar mesa</button>
       </div>`;
   }).join('');
