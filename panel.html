@@ -231,6 +231,22 @@
     margin-bottom:10px;
   }
   .mesa-vacia{ color:var(--leaf-soft); font-size:13px; font-style:italic; }
+  .mesa-invitados-lista li em{ font-style:italic; color:var(--leaf-soft); font-size:11.5px; }
+
+  .fila-manual{ display:flex; gap:6px; margin-bottom:10px; }
+  .fila-manual input[type="text"]{
+    flex:2; min-width:0; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    background:var(--paper); font-size:13px;
+  }
+  .fila-manual input[type="number"]{
+    flex:0 0 52px; padding:8px 6px; border:1px solid var(--line); border-radius:8px;
+    background:var(--paper); font-size:13px; text-align:center;
+  }
+  .fila-manual button{
+    flex-shrink:0; padding:0 12px; border:1px solid var(--leaf); border-radius:8px;
+    background:transparent; color:var(--leaf); font-family:'Outfit',sans-serif; font-size:12px;
+  }
+  .fila-manual button:hover{ background:var(--leaf); color:#fff; }
   .btn-borrar-mesa{
     background:none; border:none; color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:11.5px;
     text-decoration:underline; padding:0;
@@ -328,6 +344,8 @@
 
     <!-- ========== VISTA: MESAS ========== -->
     <div class="vista" id="vista-mesas">
+      <div class="stats" id="stats-mesas"></div>
+
       <div class="bloque">
         <h2>Añadir mesa</h2>
         <div class="form-mesa">
@@ -728,6 +746,10 @@ function ocupacionMesa(mesaId){
       if (inv) ocupados += totalPersonas(inv);
     }
   });
+  const mesa = mesas.find(m => m.id === mesaId);
+  if (mesa && mesa.manual) {
+    ocupados += mesa.manual.reduce((s, m) => s + (m.personas || 1), 0);
+  }
   return ocupados;
 }
 
@@ -759,23 +781,66 @@ function borrarMesa(mesaId){
   guardarMesasEnSheet();
 }
 
+function anadirInvitadoManual(mesaId){
+  const inputNombre = document.getElementById('manual-nombre-' + mesaId);
+  const inputPersonas = document.getElementById('manual-personas-' + mesaId);
+  const nombre = inputNombre.value.trim();
+  const personas = parseInt(inputPersonas.value, 10) || 1;
+  if (!nombre) return;
+
+  const mesa = mesas.find(m => m.id === mesaId);
+  if (!mesa) return;
+
+  const libres = mesa.capacidad - ocupacionMesa(mesaId);
+  if (personas > libres) {
+    const aviso = document.getElementById('guardado-aviso');
+    aviso.textContent = 'No caben tantas personas en esta mesa';
+    aviso.classList.add('visible');
+    setTimeout(() => { aviso.classList.remove('visible'); aviso.textContent = 'Guardado'; }, 2500);
+    return;
+  }
+
+  if (!mesa.manual) mesa.manual = [];
+  mesa.manual.push({ id: 'manual_' + Date.now() + '_' + Math.floor(Math.random()*1000), nombre, personas });
+
+  pintarMesas();
+  guardarMesasEnSheet();
+}
+
+function quitarInvitadoManual(mesaId, manualId){
+  const mesa = mesas.find(m => m.id === mesaId);
+  if (!mesa || !mesa.manual) return;
+  mesa.manual = mesa.manual.filter(m => m.id !== manualId);
+  pintarMesas();
+  guardarMesasEnSheet();
+}
+
 function pintarMesas(){
+  pintarStatsMesas();
+
   const grid = document.getElementById('mesas-grid');
   grid.innerHTML = mesas.map(mesa => {
     const ocupados = ocupacionMesa(mesa.id);
     const libres = mesa.capacidad - ocupados;
     const llena = ocupados >= mesa.capacidad;
     const invitadosMesa = invitadosDeMesa(mesa.id);
-    const filas = invitadosMesa.length
-      ? invitadosMesa.map(inv => {
-          const nombre = (inv.invitados && inv.invitados[0]) || '(sin nombre)';
-          const cuenta = inv.invitados && inv.invitados.length > 1 ? ` (${inv.invitados.length})` : '';
-          return `<li>
-            <span>${escapar(nombre)}${cuenta}</span>
-            <button class="btn-quitar-invitado-mesa" onclick="asignarMesa('${inv.id}', '')" aria-label="Quitar de la mesa">&times;</button>
-          </li>`;
-        }).join('')
-      : '';
+    const manuales = mesa.manual || [];
+
+    const filasDigitales = invitadosMesa.map(inv => {
+      const nombre = (inv.invitados && inv.invitados[0]) || '(sin nombre)';
+      const cuenta = inv.invitados && inv.invitados.length > 1 ? ` (${inv.invitados.length})` : '';
+      return `<li>
+        <span>${escapar(nombre)}${cuenta}</span>
+        <button class="btn-quitar-invitado-mesa" onclick="asignarMesa('${inv.id}', '')" aria-label="Quitar de la mesa">&times;</button>
+      </li>`;
+    }).join('');
+
+    const filasManuales = manuales.map(m => `<li>
+        <span>${escapar(m.nombre)}${m.personas > 1 ? ` (${m.personas})` : ''} <em>a mano</em></span>
+        <button class="btn-quitar-invitado-mesa" onclick="quitarInvitadoManual('${mesa.id}', '${m.id}')" aria-label="Quitar de la mesa">&times;</button>
+      </li>`).join('');
+
+    const filas = filasDigitales + filasManuales;
 
     // Invitaciones que aún caben en esta mesa (no asignadas a otra, o ya en esta)
     const disponibles = confirmaciones.filter(c => {
@@ -797,18 +862,49 @@ function pintarMesas(){
           <h3>${escapar(mesa.nombre)}</h3>
           <span class="mesa-ocupacion ${llena ? 'completa' : ''}">${ocupados}/${mesa.capacidad}</span>
         </div>
-        ${invitadosMesa.length
+        ${(invitadosMesa.length + manuales.length)
           ? `<ul class="mesa-invitados-lista">${filas}</ul>`
           : `<p class="mesa-vacia">Todavía sin invitados</p>`}
         <select class="select-anadir-mesa" onchange="if(this.value){ asignarMesa(this.value, '${mesa.id}'); this.value=''; }">
-          <option value="">${disponibles.length ? '+ Añadir invitado a esta mesa' : 'No caben más invitaciones'}</option>
+          <option value="">${disponibles.length ? '+ Añadir invitación confirmada' : 'No caben más invitaciones'}</option>
           ${opcionesAnadir}
         </select>
+        <div class="fila-manual">
+          <input type="text" id="manual-nombre-${mesa.id}" placeholder="Nombre (confirmó por teléfono)">
+          <input type="number" id="manual-personas-${mesa.id}" min="1" max="20" value="1">
+          <button type="button" onclick="anadirInvitadoManual('${mesa.id}')">Añadir</button>
+        </div>
         <button class="btn-borrar-mesa" onclick="borrarMesa('${mesa.id}')">Eliminar mesa</button>
       </div>`;
   }).join('');
 
   pintarAsignaciones();
+}
+
+function pintarStatsMesas(){
+  const totalComensalesConfirmados = confirmaciones
+    .filter(c => c.asistencia === 'si')
+    .reduce((s, c) => s + totalPersonas(c), 0);
+
+  let digitalAdjudicados = 0;
+  confirmaciones.forEach(c => {
+    if (c.asistencia === 'si' && asignaciones[c.id]) digitalAdjudicados += totalPersonas(c);
+  });
+
+  let manualTotal = 0;
+  mesas.forEach(m => { manualTotal += (m.manual || []).reduce((s, x) => s + (x.personas || 1), 0); });
+
+  const totalAdjudicados = digitalAdjudicados + manualTotal;
+  const pendientes = totalComensalesConfirmados - digitalAdjudicados;
+
+  const stats = [
+    { valor: mesas.length, etiqueta: 'Mesas' },
+    { valor: totalAdjudicados, etiqueta: 'Invitados adjudicados' },
+    { valor: pendientes, etiqueta: 'Confirmados sin mesa' }
+  ];
+  document.getElementById('stats-mesas').innerHTML = stats.map(s =>
+    `<div class="stat"><strong>${s.valor}</strong><span>${s.etiqueta}</span></div>`
+  ).join('');
 }
 
 function pintarAsignaciones(){
