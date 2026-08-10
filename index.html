@@ -342,8 +342,25 @@
   .chip:has(input:checked){ border-color:var(--gold); background:rgba(184,137,60,.12); }
   .chip input{ accent-color:var(--gold); }
 
-  #campo-acompanantes{ display:none; }
-  #campo-acompanantes.visible{ display:block; }
+  #campo-invitados{ display:none; }
+  #campo-invitados.visible{ display:block; }
+  .fila-invitado{ display:flex; gap:8px; margin-bottom:8px; }
+  .fila-invitado input{
+    flex:1; padding:12px 14px; border:1px solid var(--line); border-radius:10px;
+    background:var(--paper); font-family:'EB Garamond', serif; font-size:17px; color:var(--ink);
+  }
+  .fila-invitado input:focus{ outline:2px solid var(--gold-soft); outline-offset:1px; }
+  .btn-quitar-invitado{
+    flex-shrink:0; width:42px; border:1px solid var(--line); border-radius:10px;
+    background:var(--paper); color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:18px;
+  }
+  .btn-quitar-invitado:hover{ background:var(--line); color:var(--ink); }
+  .boton-anadir{
+    margin-top:4px; padding:9px 16px; border:1px dashed var(--gold);
+    border-radius:999px; background:transparent; color:var(--leaf);
+    font-family:'Outfit',sans-serif; font-size:12.5px; letter-spacing:.06em;
+  }
+  .boton-anadir:hover{ background:rgba(184,137,60,.08); }
 
   .enviar{
     width:100%; margin-top:26px; padding:15px;
@@ -573,21 +590,21 @@
 
       <form class="tarjeta reveal" id="form-rsvp">
         <div class="campo">
-          <label for="f-nombre">Nombre y apellidos</label>
-          <input type="text" id="f-nombre" name="nombre" required placeholder="¿Cómo os llamáis?">
-        </div>
-
-        <div class="campo">
-          <label>¿Vendrás a celebrarlo con nosotros?</label>
+          <label>¿Vendréis a celebrarlo con nosotros?</label>
           <div class="radio-fila">
-            <label><input type="radio" name="asistencia" value="si" checked> Sí, allí estaré 🎉</label>
-            <label><input type="radio" name="asistencia" value="no"> No podré ir 😢</label>
+            <label><input type="radio" name="asistencia" value="si" checked> Sí, asistiré</label>
+            <label><input type="radio" name="asistencia" value="no"> No podré asistir</label>
           </div>
         </div>
 
-        <div class="campo visible" id="campo-acompanantes">
-          <label for="f-acompanantes">¿Cuántos venís en total? (contándote a ti)</label>
-          <input type="number" id="f-acompanantes" name="acompanantes" min="1" max="12" value="1">
+        <div class="campo visible" id="campo-invitados">
+          <label>Nombre y apellidos de cada invitado</label>
+          <div id="lista-invitados">
+            <div class="fila-invitado">
+              <input type="text" name="invitado" placeholder="Nombre y apellidos" required>
+            </div>
+          </div>
+          <button type="button" class="boton-anadir" id="btn-anadir-invitado">+ Añadir invitado</button>
         </div>
 
         <div class="campo">
@@ -831,26 +848,58 @@ if (prefiereMenosMovimiento) {
    Formulario de confirmación
    ============================================================= */
 const radiosAsistencia = document.querySelectorAll('input[name="asistencia"]');
-const campoAcompanantes = document.getElementById('campo-acompanantes');
+const campoInvitados = document.getElementById('campo-invitados');
+const listaInvitados = document.getElementById('lista-invitados');
+
 radiosAsistencia.forEach(r => r.addEventListener('change', () => {
-  campoAcompanantes.classList.toggle('visible', document.querySelector('input[name="asistencia"]:checked').value === 'si');
+  const viene = document.querySelector('input[name="asistencia"]:checked').value === 'si';
+  campoInvitados.classList.toggle('visible', viene);
+  listaInvitados.querySelectorAll('input[name="invitado"]').forEach(inp => inp.required = viene);
 }));
+
+function crearFilaInvitado(){
+  const fila = document.createElement('div');
+  fila.className = 'fila-invitado';
+  fila.innerHTML = `
+    <input type="text" name="invitado" placeholder="Nombre y apellidos" required>
+    <button type="button" class="btn-quitar-invitado" aria-label="Quitar invitado">&times;</button>`;
+  fila.querySelector('.btn-quitar-invitado').addEventListener('click', () => {
+    if (listaInvitados.children.length > 1) fila.remove();
+  });
+  return fila;
+}
+
+document.getElementById('btn-anadir-invitado').addEventListener('click', () => {
+  if (listaInvitados.children.length >= 10) return;
+  listaInvitados.appendChild(crearFilaInvitado());
+});
+
+function generarIdInvitacion(){
+  return 'inv_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+}
 
 document.getElementById('form-rsvp').addEventListener('submit', async function(e){
   e.preventDefault();
   const boton = document.getElementById('btn-enviar');
   const datos = new FormData(this);
 
+  const asistencia = datos.get('asistencia');
+  const invitados = datos.getAll('invitado').map(n => n.trim()).filter(Boolean);
+
+  if (asistencia === 'si' && invitados.length === 0) {
+    abrirModal('Falta un nombre', 'Añade al menos el nombre de un invitado.');
+    return;
+  }
+
   const intolerancias = datos.getAll('intolerancia');
   const payload = {
-    nombre: datos.get('nombre'),
-    asistencia: datos.get('asistencia'),
-    acompanantes: datos.get('asistencia') === 'si' ? datos.get('acompanantes') : 0,
+    id: generarIdInvitacion(),
+    asistencia: asistencia,
+    invitados: invitados,
     intolerancias: intolerancias.join(', '),
     intolerancias_detalle: datos.get('intolerancia_detalle'),
     cancion: datos.get('cancion'),
-    mensaje: datos.get('mensaje'),
-    fecha_envio: new Date().toISOString()
+    mensaje: datos.get('mensaje')
   };
 
   if (!CONFIG.googleScriptUrl) {
@@ -869,7 +918,9 @@ document.getElementById('form-rsvp').addEventListener('submit', async function(e
       body: JSON.stringify(payload)
     });
     this.reset();
-    campoAcompanantes.classList.add('visible');
+    listaInvitados.innerHTML = '';
+    listaInvitados.appendChild(crearFilaInvitado());
+    campoInvitados.classList.add('visible');
     abrirModal('¡Gracias!', payload.asistencia === 'si'
       ? 'Hemos recibido tu confirmación. ¡Nos hace muchísima ilusión veros allí! 🎉'
       : 'Hemos recibido tu respuesta. Se os echará de menos ese día ❤️');
