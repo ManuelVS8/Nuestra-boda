@@ -112,8 +112,26 @@
   .lista-conteo span{
     font-family:'Outfit',sans-serif; font-size:12.5px; background:var(--paper);
     border:1px solid var(--line); border-radius:999px; padding:6px 12px;
+    cursor:pointer; transition:background .2s, border-color .2s;
   }
+  .lista-conteo span:hover{ border-color:var(--gold); }
+  .lista-conteo span.activo{ background:var(--leaf); border-color:var(--leaf); color:#fff; }
+  .lista-conteo span.activo b{ color:#fff; }
   .lista-conteo b{ color:var(--gold); }
+  .lista-conteo span.no-clicable{ cursor:default; }
+  .lista-conteo span.no-clicable:hover{ border-color:var(--line); }
+
+  #detalle-intolerancia{ margin-top:14px; }
+  #detalle-intolerancia:empty{ display:none; }
+  .detalle-intol-titulo{
+    font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--leaf); margin-bottom:8px;
+  }
+  .detalle-intol-lista{ list-style:none; padding:0; margin:0; display:grid; gap:6px; }
+  .detalle-intol-lista li{
+    background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:14.5px;
+  }
+  .detalle-intol-lista li span{ display:block; color:var(--leaf-soft); font-size:12.5px; margin-top:2px; }
 
   .filtros{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
   .filtros input[type=text]{
@@ -271,6 +289,7 @@
       <div class="bloque">
         <h2>Intolerancias para el catering</h2>
         <div class="lista-conteo" id="lista-intolerancias"></div>
+        <div id="detalle-intolerancia"></div>
       </div>
 
       <div class="bloque">
@@ -559,13 +578,41 @@ function pintarListasConteo(){
   });
   const claves = Object.keys(conteoIntol);
   document.getElementById('lista-intolerancias').innerHTML = claves.length
-    ? claves.map(k => `<span>${escapar(k)} <b>×${conteoIntol[k]}</b></span>`).join('')
-    : '<span>Nadie ha marcado ninguna todavía</span>';
+    ? claves.map(k => `<span data-valor="${escapar(k)}" onclick="mostrarNombresIntolerancia('${escapar(k)}', this)">${escapar(k)} <b>×${conteoIntol[k]}</b></span>`).join('')
+    : '<span class="no-clicable">Nadie ha marcado ninguna todavía</span>';
+
+  document.getElementById('detalle-intolerancia').innerHTML = '';
 
   const canciones = confirmaciones.map(c => c.cancion).filter(Boolean);
   document.getElementById('lista-canciones').innerHTML = canciones.length
     ? canciones.map(c => `<span>${escapar(c)}</span>`).join('')
     : '<span>Todavía no han llegado peticiones musicales</span>';
+}
+
+function mostrarNombresIntolerancia(valor, chip){
+  const yaActivo = chip.classList.contains('activo');
+  document.querySelectorAll('#lista-intolerancias span').forEach(s => s.classList.remove('activo'));
+
+  const contenedor = document.getElementById('detalle-intolerancia');
+  if (yaActivo) {
+    contenedor.innerHTML = '';
+    return;
+  }
+  chip.classList.add('activo');
+
+  const afectados = confirmaciones.filter(c =>
+    (c.intolerancias || '').split(',').map(s => s.trim()).includes(valor)
+  );
+
+  const filas = afectados.map(c => {
+    const nombres = (c.invitados || []).join(', ') || '(sin nombre)';
+    const detalle = c.intolerancias_detalle ? `<span>${escapar(c.intolerancias_detalle)}</span>` : '';
+    return `<li>${escapar(nombres)}${detalle}</li>`;
+  }).join('');
+
+  contenedor.innerHTML = `
+    <div class="detalle-intol-titulo">${escapar(valor)} — ${afectados.length} ${afectados.length === 1 ? 'invitación' : 'invitaciones'}</div>
+    <ul class="detalle-intol-lista">${filas || '<li>Nadie encontrado</li>'}</ul>`;
 }
 
 /* =============================================================
