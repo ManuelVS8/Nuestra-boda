@@ -58,19 +58,19 @@
   #btn-ver-clave .ojo-cerrado{ display:none; }
   #btn-ver-clave.mostrando .ojo-abierto{ display:none; }
   #btn-ver-clave.mostrando .ojo-cerrado{ display:block; }
-  .acceso-caja button{
+  .acceso-caja button#btn-entrar{
     width:100%; margin-top:14px; padding:13px; border:none; border-radius:10px;
     background:var(--leaf); color:#fff; font-family:'Outfit',sans-serif; font-size:13px;
     letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
   }
-  .acceso-caja button:hover{ background:var(--ink); }
+  .acceso-caja button#btn-entrar:hover{ background:var(--ink); }
   #acceso-error{ color:#a54b3f; font-size:13px; margin-top:12px; min-height:16px; font-family:'Outfit',sans-serif; }
 
   /* ---------- Panel ---------- */
-  #panel{ display:none; padding:28px 18px 60px; max-width:1000px; margin:0 auto; }
+  #panel{ display:none; padding:28px 18px 60px; max-width:900px; margin:0 auto; }
   header.panel-header{
     display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px;
-    margin-bottom:26px;
+    margin-bottom:18px;
   }
   header.panel-header h1{ font-size:32px; }
   .btn-secundario{
@@ -79,22 +79,35 @@
     text-transform:uppercase; cursor:pointer; transition:background .2s;
   }
   .btn-secundario:hover{ background:var(--gold); color:#fff; }
+  .btn-secundario.activo{ background:var(--leaf); border-color:var(--leaf); color:#fff; }
+
+  /* Pestañas */
+  .pestanas{ display:flex; gap:8px; margin-bottom:24px; }
+  .pestana{
+    flex:1; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--paper-soft);
+    color:var(--leaf); font-family:'Outfit',sans-serif; font-size:13px; letter-spacing:.05em;
+    text-transform:uppercase; cursor:pointer; text-align:center;
+  }
+  .pestana.activa{ background:var(--leaf); border-color:var(--leaf); color:#fff; }
+
+  .vista{ display:none; }
+  .vista.activa{ display:block; }
 
   .stats{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:10px; margin-bottom:26px;
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:10px; margin-bottom:22px;
   }
   .stat{
     background:var(--paper-soft); border:1px solid var(--line); border-radius:12px;
     padding:16px 14px; text-align:center;
   }
-  .stat strong{ display:block; font-family:'Cormorant Garamond',serif; font-size:30px; color:var(--leaf); }
-  .stat span{ font-family:'Outfit',sans-serif; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--leaf-soft); }
+  .stat strong{ display:block; font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--leaf); }
+  .stat span{ font-family:'Outfit',sans-serif; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--leaf-soft); }
 
   .bloque{
     background:var(--paper-soft); border:1px solid var(--line); border-radius:14px;
     padding:20px; margin-bottom:20px;
   }
-  .bloque h2{ font-size:20px; margin-bottom:10px; }
+  .bloque h2{ font-size:19px; margin-bottom:10px; }
   .lista-conteo{ display:flex; flex-wrap:wrap; gap:8px; }
   .lista-conteo span{
     font-family:'Outfit',sans-serif; font-size:12.5px; background:var(--paper);
@@ -102,9 +115,7 @@
   }
   .lista-conteo b{ color:var(--gold); }
 
-  .filtros{
-    display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;
-  }
+  .filtros{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
   .filtros input[type=text]{
     flex:1; min-width:160px; padding:10px 14px; border:1px solid var(--line); border-radius:10px;
     background:var(--paper-soft); font-size:15px;
@@ -117,23 +128,99 @@
     border:1px solid var(--line); border-radius:10px; padding:0 12px; background:var(--paper-soft);
   }
 
-  .tabla-scroll{ overflow-x:auto; border:1px solid var(--line); border-radius:14px; }
-  table{ width:100%; border-collapse:collapse; min-width:760px; background:var(--paper-soft); }
-  th, td{ padding:12px 14px; text-align:left; border-bottom:1px solid var(--line); font-size:14.5px; vertical-align:top; }
-  th{
-    font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
-    color:var(--leaf); background:var(--paper); position:sticky; top:0;
+  /* ---------- Lista de invitaciones ---------- */
+  .lista-invitaciones{ display:flex; flex-direction:column; gap:8px; }
+  .invitacion-item{
+    background:var(--paper-soft); border:1px solid var(--line); border-radius:12px; overflow:hidden;
   }
-  tr:last-child td{ border-bottom:none; }
-  .badge{
-    display:inline-block; padding:3px 10px; border-radius:999px; font-family:'Outfit',sans-serif; font-size:11.5px;
+  .invitacion-cabecera{
+    display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer;
   }
+  .punto-intolerancia{
+    width:9px; height:9px; border-radius:50%; background:var(--leaf); flex-shrink:0;
+  }
+  .punto-intolerancia.oculto{ visibility:hidden; }
+  .invitacion-nombre{ flex:1; font-size:17px; }
+  .invitacion-nombre b{ font-weight:600; }
+  .invitacion-nombre span{ color:var(--leaf-soft); font-size:14px; }
+  .badge{ padding:3px 10px; border-radius:999px; font-family:'Outfit',sans-serif; font-size:11.5px; flex-shrink:0; }
   .badge.si{ background:rgba(91,122,91,.15); color:var(--leaf); }
   .badge.no{ background:rgba(165,75,63,.12); color:#a54b3f; }
+  .flecha{ color:var(--leaf-soft); font-size:13px; transition:transform .2s; flex-shrink:0; }
+  .invitacion-item.abierta .flecha{ transform:rotate(90deg); }
+
+  .invitacion-detalle{
+    max-height:0; overflow:hidden; transition:max-height .3s ease;
+    border-top:1px solid transparent;
+  }
+  .invitacion-item.abierta .invitacion-detalle{ border-top:1px solid var(--line); }
+  .invitacion-detalle-inner{ padding:16px; display:grid; gap:12px; }
+  .detalle-fila b{
+    display:block; font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--leaf); margin-bottom:3px;
+  }
+  .lista-nombres{ list-style:none; padding:0; margin:0; }
+  .lista-nombres li{ padding:2px 0; }
 
   #estado-vacio, #estado-carga{
     text-align:center; padding:50px 20px; color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:13px;
   }
+
+  /* ---------- Mesas ---------- */
+  .form-mesa{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:20px;
+  }
+  .form-mesa .campo-mini{ flex:1; min-width:140px; }
+  .form-mesa label{
+    display:block; font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--leaf); margin-bottom:6px;
+  }
+  .form-mesa input{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+    background:var(--paper-soft); font-size:15px;
+  }
+  .form-mesa button{
+    padding:11px 20px; border:none; border-radius:10px; background:var(--leaf); color:#fff;
+    font-family:'Outfit',sans-serif; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+  }
+  .form-mesa button:hover{ background:var(--ink); }
+
+  .mesas-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:14px; margin-bottom:26px; }
+  .mesa-card{
+    background:var(--paper-soft); border:1px solid var(--line); border-radius:14px; padding:18px;
+  }
+  .mesa-card-cabecera{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:8px; }
+  .mesa-card h3{ font-size:20px; }
+  .mesa-ocupacion{
+    font-family:'Outfit',sans-serif; font-size:12px; padding:3px 10px; border-radius:999px;
+    background:rgba(91,122,91,.15); color:var(--leaf); white-space:nowrap;
+  }
+  .mesa-ocupacion.completa{ background:rgba(184,137,60,.18); color:var(--gold); }
+  .mesa-invitados-lista{ list-style:none; padding:0; margin:0 0 10px; font-size:14.5px; }
+  .mesa-invitados-lista li{ padding:3px 0; border-bottom:1px dashed var(--line); }
+  .mesa-invitados-lista li:last-child{ border-bottom:none; }
+  .mesa-vacia{ color:var(--leaf-soft); font-size:13px; font-style:italic; }
+  .btn-borrar-mesa{
+    background:none; border:none; color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:11.5px;
+    text-decoration:underline; padding:0;
+  }
+  .btn-borrar-mesa:hover{ color:#a54b3f; }
+
+  .asignacion-item{
+    display:flex; align-items:center; gap:12px; padding:12px 14px;
+    background:var(--paper-soft); border:1px solid var(--line); border-radius:10px; margin-bottom:8px;
+  }
+  .asignacion-nombre{ flex:1; font-size:15.5px; }
+  .asignacion-nombre span{ color:var(--leaf-soft); font-size:13px; display:block; }
+  .asignacion-item select{
+    padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:var(--paper); font-size:13.5px;
+    max-width:160px;
+  }
+
+  #guardado-aviso{
+    font-family:'Outfit',sans-serif; font-size:12px; color:var(--leaf); opacity:0; transition:opacity .4s ease;
+  }
+  #guardado-aviso.visible{ opacity:1; }
 
   footer{ text-align:center; padding:30px 0 10px; color:var(--leaf-soft); font-family:'Outfit',sans-serif; font-size:11.5px; }
 </style>
@@ -162,46 +249,77 @@
   <div id="panel">
     <header class="panel-header">
       <div>
-        <span class="eyebrow">Invitados</span>
-        <h1>Quién viene a la boda</h1>
+        <span class="eyebrow">Sergio &amp; María Ángeles</span>
+        <h1>Panel de la boda</h1>
       </div>
-      <button class="btn-secundario" id="btn-actualizar">Actualizar</button>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span id="guardado-aviso">Guardado</span>
+        <button class="btn-secundario" id="btn-exportar-pdf">Exportar PDF</button>
+        <button class="btn-secundario" id="btn-actualizar">Actualizar</button>
+      </div>
     </header>
 
-    <div class="stats" id="stats"></div>
-
-    <div class="bloque" id="bloque-intolerancias">
-      <h2>Intolerancias para el catering</h2>
-      <div class="lista-conteo" id="lista-intolerancias"></div>
+    <div class="pestanas">
+      <div class="pestana activa" data-vista="confirmaciones">Confirmaciones</div>
+      <div class="pestana" data-vista="mesas">Mesas</div>
     </div>
 
-    <div class="bloque" id="bloque-canciones">
-      <h2>Canciones pedidas</h2>
-      <div class="lista-conteo" id="lista-canciones"></div>
+    <!-- ========== VISTA: CONFIRMACIONES ========== -->
+    <div class="vista activa" id="vista-confirmaciones">
+      <div class="stats" id="stats"></div>
+
+      <div class="bloque">
+        <h2>Intolerancias para el catering</h2>
+        <div class="lista-conteo" id="lista-intolerancias"></div>
+      </div>
+
+      <div class="bloque">
+        <h2>Canciones pedidas</h2>
+        <div class="lista-conteo" id="lista-canciones"></div>
+      </div>
+
+      <div class="filtros">
+        <input type="text" id="buscar" placeholder="Buscar por nombre...">
+        <select id="filtro-asistencia">
+          <option value="todos">Todos</option>
+          <option value="si">Solo confirmados</option>
+          <option value="no">Solo los que no vienen</option>
+        </select>
+        <label><input type="checkbox" id="filtro-intolerancias"> Solo con intolerancias</label>
+        <button class="btn-secundario" id="btn-ordenar">A → Z</button>
+      </div>
+
+      <div id="estado-carga">Cargando confirmaciones...</div>
+      <div id="estado-vacio" style="display:none;">Todavía no hay ninguna confirmación con estos filtros.</div>
+      <div class="lista-invitaciones" id="lista-invitaciones"></div>
     </div>
 
-    <div class="filtros">
-      <input type="text" id="buscar" placeholder="Buscar por nombre...">
-      <select id="filtro-asistencia">
-        <option value="todos">Todos</option>
-        <option value="si">Solo confirmados</option>
-        <option value="no">Solo los que no vienen</option>
-      </select>
-      <label><input type="checkbox" id="filtro-intolerancias"> Solo con intolerancias</label>
-    </div>
+    <!-- ========== VISTA: MESAS ========== -->
+    <div class="vista" id="vista-mesas">
+      <div class="bloque">
+        <h2>Añadir mesa</h2>
+        <div class="form-mesa">
+          <div class="campo-mini">
+            <label for="mesa-nombre">Nombre de la mesa</label>
+            <input type="text" id="mesa-nombre" placeholder="Ej: Mesa de la abuela">
+          </div>
+          <div class="campo-mini" style="max-width:120px;">
+            <label for="mesa-capacidad">Sitios</label>
+            <input type="number" id="mesa-capacidad" min="1" max="30" value="8">
+          </div>
+          <button type="button" id="btn-anadir-mesa">+ Añadir mesa</button>
+        </div>
+      </div>
 
-    <div id="estado-carga">Cargando confirmaciones...</div>
-    <div id="estado-vacio" style="display:none;">Todavía no hay ninguna confirmación con estos filtros.</div>
-    <div class="tabla-scroll" id="tabla-scroll" style="display:none;">
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th><th>Asistencia</th><th>Personas</th>
-            <th>Intolerancias</th><th>Detalle</th><th>Canción</th><th>Mensaje</th><th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody id="tabla-cuerpo"></tbody>
-      </table>
+      <div class="mesas-grid" id="mesas-grid"></div>
+
+      <div class="bloque">
+        <h2>Asignar invitaciones a una mesa</h2>
+        <p style="color:var(--leaf); font-size:14px; margin-top:-4px; margin-bottom:14px;">
+          Cada invitación se mueve entera — así nunca se separa a una familia.
+        </p>
+        <div id="lista-asignaciones"></div>
+      </div>
     </div>
   </div>
 
@@ -212,6 +330,11 @@
    CONFIGURACIÓN — edita esto
    ============================================================= */
 const CONFIG = {
+  // Datos que aparecen en la cabecera del PDF para catering
+  novio: "Sergio",
+  novia: "María Ángeles",
+  fechaBoda: "2026-11-21T12:00:00",
+
   // La MISMA URL de Apps Script que usas en invitacion-boda.html
   googleScriptUrl: "https://script.google.com/macros/s/AKfycbyEW8VQTpng4LO5-FjCK5OWeJR-4VcMO_h9VqmW1iYiTWTkM6AC4ZWIyhgdpIX8zIwPZg/exec",
   // La MISMA clave que pusiste en TOKEN_ADMIN dentro de Code.gs
@@ -219,9 +342,12 @@ const CONFIG = {
 };
 
 let confirmaciones = [];
+let mesas = [];           // [{ id, nombre, capacidad }]
+let asignaciones = {};    // { invitacionId: mesaId }
+let ordenAscendente = true;
 
 /* =============================================================
-   Acceso (comprobación simple del lado del cliente)
+   Acceso
    ============================================================= */
 const pantallaAcceso = document.getElementById('acceso');
 const panel = document.getElementById('panel');
@@ -254,7 +380,6 @@ function intentarEntrar(){
 document.getElementById('btn-entrar').addEventListener('click', intentarEntrar);
 inputToken.addEventListener('keydown', e => { if (e.key === 'Enter') intentarEntrar(); });
 
-// Recordar acceso durante la sesión del navegador
 const claveGuardada = sessionStorage.getItem('claveAcceso');
 if (claveGuardada && claveGuardada === CONFIG.token) {
   pantallaAcceso.style.display = 'none';
@@ -263,12 +388,25 @@ if (claveGuardada && claveGuardada === CONFIG.token) {
 }
 
 /* =============================================================
-   Cargar datos desde Apps Script
+   Pestañas
+   ============================================================= */
+document.querySelectorAll('.pestana').forEach(pestana => {
+  pestana.addEventListener('click', () => {
+    document.querySelectorAll('.pestana').forEach(p => p.classList.remove('activa'));
+    document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+    pestana.classList.add('activa');
+    document.getElementById('vista-' + pestana.dataset.vista).classList.add('activa');
+    if (pestana.dataset.vista === 'mesas') pintarMesas();
+  });
+});
+
+/* =============================================================
+   Cargar datos
    ============================================================= */
 async function cargarDatos(){
   document.getElementById('estado-carga').style.display = 'block';
   document.getElementById('estado-vacio').style.display = 'none';
-  document.getElementById('tabla-scroll').style.display = 'none';
+  document.getElementById('lista-invitaciones').innerHTML = '';
 
   if (!CONFIG.googleScriptUrl) {
     document.getElementById('estado-carga').textContent = 'Falta configurar CONFIG.googleScriptUrl en este archivo.';
@@ -276,13 +414,21 @@ async function cargarDatos(){
   }
 
   try{
-    const resp = await fetch(`${CONFIG.googleScriptUrl}?token=${encodeURIComponent(CONFIG.token)}`);
-    const datos = await resp.json();
-    if (datos.error) {
+    const [respConf, respMesas] = await Promise.all([
+      fetch(`${CONFIG.googleScriptUrl}?token=${encodeURIComponent(CONFIG.token)}`),
+      fetch(`${CONFIG.googleScriptUrl}?token=${encodeURIComponent(CONFIG.token)}&tipo=mesas`)
+    ]);
+    const datosConf = await respConf.json();
+    const datosMesas = await respMesas.json();
+
+    if (datosConf.error) {
       document.getElementById('estado-carga').textContent = 'Clave rechazada por el servidor. Revisa TOKEN_ADMIN en Code.gs.';
       return;
     }
-    confirmaciones = datos;
+    confirmaciones = datosConf;
+    mesas = (datosMesas && datosMesas.mesas) || [];
+    asignaciones = (datosMesas && datosMesas.asignaciones) || {};
+
     document.getElementById('estado-carga').style.display = 'none';
     pintarTodo();
   } catch(err){
@@ -292,23 +438,109 @@ async function cargarDatos(){
 document.getElementById('btn-actualizar').addEventListener('click', cargarDatos);
 
 /* =============================================================
-   Pintar estadísticas, listas y tabla
+   Exportar PDF para el catering
    ============================================================= */
+document.getElementById('btn-exportar-pdf').addEventListener('click', exportarPDFCatering);
+
+function exportarPDFCatering(){
+  const confirmados = confirmaciones.filter(c => c.asistencia === 'si');
+  const totalComensales = confirmados.reduce((s, c) => s + totalPersonas(c), 0);
+
+  const conteoIntol = {};
+  confirmados.forEach(c => {
+    (c.intolerancias || '').split(',').map(s => s.trim()).filter(Boolean).forEach(i => {
+      conteoIntol[i] = (conteoIntol[i] || 0) + 1;
+    });
+  });
+  const clavesIntol = Object.keys(conteoIntol);
+
+  const filasIntol = clavesIntol.length
+    ? clavesIntol.map(k => `<tr><td>${escapar(k)}</td><td style="text-align:center;">${conteoIntol[k]}</td></tr>`).join('')
+    : `<tr><td colspan="2">Ninguna intolerancia registrada</td></tr>`;
+
+  const filasDetalle = confirmados
+    .slice()
+    .sort((a, b) => (((a.invitados||[])[0]||'')).localeCompare(((b.invitados||[])[0]||'')))
+    .map(c => {
+      const nombres = (c.invitados || []).join(', ') || '—';
+      return `<tr>
+        <td>${escapar(nombres)}</td>
+        <td style="text-align:center;">${totalPersonas(c)}</td>
+        <td>${escapar(c.intolerancias) || '—'}</td>
+        <td>${escapar(c.intolerancias_detalle) || '—'}</td>
+      </tr>`;
+    }).join('');
+
+  const fechaBonita = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+    .format(new Date(CONFIG.fechaBoda));
+
+  const html = `<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>Listado para catering</title>
+<style>
+  body{ font-family: Georgia, 'Times New Roman', serif; color:#2E3B2A; padding:40px; }
+  h1{ font-size:25px; margin:0 0 2px; }
+  .subtitulo{ color:#8FA688; font-size:14px; margin-bottom:22px; font-family: Arial, sans-serif; letter-spacing:.02em; }
+  .resumen{ display:flex; gap:34px; margin:18px 0 28px; }
+  .resumen div strong{ display:block; font-size:26px; }
+  .resumen div span{ font-family: Arial, sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#5B7A5B; }
+  h2{ font-size:16px; border-bottom:1px solid #DCD0B4; padding-bottom:6px; margin-top:30px; }
+  table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+  th, td{ text-align:left; padding:7px 8px; border-bottom:1px solid #eee; vertical-align:top; }
+  th{ font-family: Arial, sans-serif; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:#5B7A5B; }
+  @media print{ body{ padding:14px; } }
+</style></head>
+<body>
+  <h1>${escapar(CONFIG.novio)} &amp; ${escapar(CONFIG.novia)}</h1>
+  <div class="subtitulo">${fechaBonita} — Listado para catering</div>
+
+  <div class="resumen">
+    <div><strong>${totalComensales}</strong><span>Comensales confirmados</span></div>
+    <div><strong>${confirmados.length}</strong><span>Invitaciones</span></div>
+  </div>
+
+  <h2>Intolerancias y alergias — resumen</h2>
+  <table><thead><tr><th>Intolerancia</th><th>Personas</th></tr></thead><tbody>${filasIntol}</tbody></table>
+
+  <h2>Listado detallado por invitación</h2>
+  <table><thead><tr><th>Invitados</th><th>Nº</th><th>Intolerancias</th><th>Detalle</th></tr></thead><tbody>${filasDetalle}</tbody></table>
+</body></html>`;
+
+  const ventana = window.open('', '_blank');
+  if (!ventana) {
+    const aviso = document.getElementById('guardado-aviso');
+    aviso.textContent = 'Permite las ventanas emergentes para exportar';
+    aviso.classList.add('visible');
+    setTimeout(() => { aviso.classList.remove('visible'); aviso.textContent = 'Guardado'; }, 3000);
+    return;
+  }
+  ventana.document.write(html);
+  ventana.document.close();
+  ventana.onload = () => { ventana.focus(); ventana.print(); };
+}
+
 function pintarTodo(){
   pintarStats();
   pintarListasConteo();
-  pintarTabla();
+  pintarListaInvitaciones();
+  pintarMesas();
+}
+
+/* =============================================================
+   Estadísticas y listas agregadas
+   ============================================================= */
+function totalPersonas(inv){
+  return (inv.invitados && inv.invitados.length) ? inv.invitados.length : 0;
 }
 
 function pintarStats(){
   const confirmados = confirmaciones.filter(c => c.asistencia === 'si');
   const noVienen = confirmaciones.filter(c => c.asistencia === 'no');
-  const totalComensales = confirmados.reduce((s,c) => s + (parseInt(c.acompanantes) || 1), 0);
+  const totalComensales = confirmados.reduce((s,c) => s + totalPersonas(c), 0);
   const conIntolerancias = confirmaciones.filter(c => c.intolerancias && c.intolerancias.trim() !== '');
 
   const stats = [
-    { valor: confirmaciones.length, etiqueta: 'Respuestas' },
-    { valor: confirmados.length, etiqueta: 'Grupos confirmados' },
+    { valor: confirmaciones.length, etiqueta: 'Invitaciones' },
+    { valor: confirmados.length, etiqueta: 'Confirmadas' },
     { valor: totalComensales, etiqueta: 'Comensales' },
     { valor: noVienen.length, etiqueta: 'No vienen' },
     { valor: conIntolerancias.length, etiqueta: 'Con intolerancias' }
@@ -327,51 +559,91 @@ function pintarListasConteo(){
   });
   const claves = Object.keys(conteoIntol);
   document.getElementById('lista-intolerancias').innerHTML = claves.length
-    ? claves.map(k => `<span>${k} <b>×${conteoIntol[k]}</b></span>`).join('')
+    ? claves.map(k => `<span>${escapar(k)} <b>×${conteoIntol[k]}</b></span>`).join('')
     : '<span>Nadie ha marcado ninguna todavía</span>';
 
   const canciones = confirmaciones.map(c => c.cancion).filter(Boolean);
   document.getElementById('lista-canciones').innerHTML = canciones.length
-    ? canciones.map(c => `<span>🎵 ${c}</span>`).join('')
+    ? canciones.map(c => `<span>${escapar(c)}</span>`).join('')
     : '<span>Todavía no han llegado peticiones musicales</span>';
 }
 
-function pintarTabla(){
+/* =============================================================
+   Lista de invitaciones (acordeón)
+   ============================================================= */
+document.getElementById('btn-ordenar').addEventListener('click', () => {
+  ordenAscendente = !ordenAscendente;
+  document.getElementById('btn-ordenar').textContent = ordenAscendente ? 'A → Z' : 'Z → A';
+  pintarListaInvitaciones();
+});
+
+function pintarListaInvitaciones(){
   const texto = document.getElementById('buscar').value.trim().toLowerCase();
   const filtroAsistencia = document.getElementById('filtro-asistencia').value;
   const soloIntolerancias = document.getElementById('filtro-intolerancias').checked;
 
   let filtradas = confirmaciones.filter(c => {
-    if (texto && !(c.nombre || '').toLowerCase().includes(texto)) return false;
+    const nombrePrincipal = (c.invitados && c.invitados[0]) || '';
+    if (texto && !nombrePrincipal.toLowerCase().includes(texto)) return false;
     if (filtroAsistencia !== 'todos' && c.asistencia !== filtroAsistencia) return false;
     if (soloIntolerancias && !(c.intolerancias && c.intolerancias.trim())) return false;
     return true;
   });
 
-  const tablaScroll = document.getElementById('tabla-scroll');
+  filtradas.sort((a, b) => {
+    const na = ((a.invitados && a.invitados[0]) || '').toLowerCase();
+    const nb = ((b.invitados && b.invitados[0]) || '').toLowerCase();
+    return ordenAscendente ? na.localeCompare(nb) : nb.localeCompare(na);
+  });
+
+  const contenedor = document.getElementById('lista-invitaciones');
   const estadoVacio = document.getElementById('estado-vacio');
 
   if (filtradas.length === 0) {
-    tablaScroll.style.display = 'none';
+    contenedor.innerHTML = '';
     estadoVacio.style.display = 'block';
     return;
   }
   estadoVacio.style.display = 'none';
-  tablaScroll.style.display = 'block';
 
-  document.getElementById('tabla-cuerpo').innerHTML = filtradas.map(c => {
-    const fecha = c.fecha ? new Date(c.fecha).toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
-    return `<tr>
-      <td>${escapar(c.nombre)}</td>
-      <td><span class="badge ${c.asistencia === 'si' ? 'si' : 'no'}">${c.asistencia === 'si' ? 'Sí viene' : 'No viene'}</span></td>
-      <td>${c.asistencia === 'si' ? (c.acompanantes || 1) : '–'}</td>
-      <td>${escapar(c.intolerancias) || '–'}</td>
-      <td>${escapar(c.intolerancias_detalle) || '–'}</td>
-      <td>${escapar(c.cancion) || '–'}</td>
-      <td>${escapar(c.mensaje) || '–'}</td>
-      <td>${fecha}</td>
-    </tr>`;
+  contenedor.innerHTML = filtradas.map(inv => {
+    const nombres = inv.invitados || [];
+    const principal = nombres[0] || '(sin nombre)';
+    const resto = nombres.length > 1 ? `<span> +${nombres.length - 1}</span>` : '';
+    const tieneIntolerancia = inv.intolerancias && inv.intolerancias.trim() !== '';
+    const fecha = inv.fecha ? new Date(inv.fecha).toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
+
+    return `
+      <div class="invitacion-item" data-id="${escapar(inv.id)}">
+        <div class="invitacion-cabecera" onclick="alternarInvitacion(this)">
+          <span class="punto-intolerancia ${tieneIntolerancia ? '' : 'oculto'}" title="Tiene intolerancias"></span>
+          <div class="invitacion-nombre"><b>${escapar(principal)}</b>${resto}</div>
+          <span class="badge ${inv.asistencia === 'si' ? 'si' : 'no'}">${inv.asistencia === 'si' ? 'Sí viene' : 'No viene'}</span>
+          <span class="flecha">&#8250;</span>
+        </div>
+        <div class="invitacion-detalle">
+          <div class="invitacion-detalle-inner">
+            <div class="detalle-fila">
+              <b>Invitados</b>
+              <ul class="lista-nombres">${nombres.map(n => `<li>${escapar(n)}</li>`).join('') || '<li>—</li>'}</ul>
+            </div>
+            <div class="detalle-fila"><b>Intolerancias</b>${escapar(inv.intolerancias) || '—'}</div>
+            <div class="detalle-fila"><b>Detalle</b>${escapar(inv.intolerancias_detalle) || '—'}</div>
+            <div class="detalle-fila"><b>Canción pedida</b>${escapar(inv.cancion) || '—'}</div>
+            <div class="detalle-fila"><b>Mensaje</b>${escapar(inv.mensaje) || '—'}</div>
+            <div class="detalle-fila"><b>Fecha de confirmación</b>${fecha || '—'}</div>
+          </div>
+        </div>
+      </div>`;
   }).join('');
+}
+
+function alternarInvitacion(cabecera){
+  const item = cabecera.closest('.invitacion-item');
+  const detalle = item.querySelector('.invitacion-detalle');
+  const abrir = !item.classList.contains('abierta');
+  item.classList.toggle('abierta', abrir);
+  detalle.style.maxHeight = abrir ? detalle.scrollHeight + 'px' : '0px';
 }
 
 function escapar(texto){
@@ -381,9 +653,141 @@ function escapar(texto){
   return div.innerHTML;
 }
 
-document.getElementById('buscar').addEventListener('input', pintarTabla);
-document.getElementById('filtro-asistencia').addEventListener('change', pintarTabla);
-document.getElementById('filtro-intolerancias').addEventListener('change', pintarTabla);
+document.getElementById('buscar').addEventListener('input', pintarListaInvitaciones);
+document.getElementById('filtro-asistencia').addEventListener('change', pintarListaInvitaciones);
+document.getElementById('filtro-intolerancias').addEventListener('change', pintarListaInvitaciones);
+
+/* =============================================================
+   MESAS
+   ============================================================= */
+function ocupacionMesa(mesaId){
+  let ocupados = 0;
+  Object.keys(asignaciones).forEach(invId => {
+    if (asignaciones[invId] === mesaId) {
+      const inv = confirmaciones.find(c => c.id === invId);
+      if (inv) ocupados += totalPersonas(inv);
+    }
+  });
+  return ocupados;
+}
+
+function invitadosDeMesa(mesaId){
+  return Object.keys(asignaciones)
+    .filter(invId => asignaciones[invId] === mesaId)
+    .map(invId => confirmaciones.find(c => c.id === invId))
+    .filter(Boolean);
+}
+
+document.getElementById('btn-anadir-mesa').addEventListener('click', () => {
+  const nombre = document.getElementById('mesa-nombre').value.trim();
+  const capacidad = parseInt(document.getElementById('mesa-capacidad').value, 10) || 1;
+  if (!nombre) return;
+
+  mesas.push({ id: 'mesa_' + Date.now(), nombre, capacidad });
+  document.getElementById('mesa-nombre').value = '';
+  document.getElementById('mesa-capacidad').value = 8;
+  pintarMesas();
+  guardarMesasEnSheet();
+});
+
+function borrarMesa(mesaId){
+  mesas = mesas.filter(m => m.id !== mesaId);
+  Object.keys(asignaciones).forEach(invId => {
+    if (asignaciones[invId] === mesaId) delete asignaciones[invId];
+  });
+  pintarMesas();
+  guardarMesasEnSheet();
+}
+
+function pintarMesas(){
+  const grid = document.getElementById('mesas-grid');
+  grid.innerHTML = mesas.map(mesa => {
+    const ocupados = ocupacionMesa(mesa.id);
+    const llena = ocupados >= mesa.capacidad;
+    const invitadosMesa = invitadosDeMesa(mesa.id);
+    const filas = invitadosMesa.length
+      ? invitadosMesa.map(inv => `<li>${escapar((inv.invitados && inv.invitados[0]) || '(sin nombre)')}${inv.invitados && inv.invitados.length > 1 ? ' +' + (inv.invitados.length - 1) : ''}</li>`).join('')
+      : '';
+
+    return `
+      <div class="mesa-card">
+        <div class="mesa-card-cabecera">
+          <h3>${escapar(mesa.nombre)}</h3>
+          <span class="mesa-ocupacion ${llena ? 'completa' : ''}">${ocupados}/${mesa.capacidad}</span>
+        </div>
+        ${invitadosMesa.length
+          ? `<ul class="mesa-invitados-lista">${filas}</ul>`
+          : `<p class="mesa-vacia">Todavía sin invitados</p>`}
+        <button class="btn-borrar-mesa" onclick="borrarMesa('${mesa.id}')">Eliminar mesa</button>
+      </div>`;
+  }).join('');
+
+  pintarAsignaciones();
+}
+
+function pintarAsignaciones(){
+  const contenedor = document.getElementById('lista-asignaciones');
+  const invitacionesQueVienen = confirmaciones.filter(c => c.asistencia === 'si');
+
+  if (invitacionesQueVienen.length === 0) {
+    contenedor.innerHTML = '<p style="color:var(--leaf-soft); font-size:14px;">Todavía no hay ninguna invitación confirmada.</p>';
+    return;
+  }
+
+  contenedor.innerHTML = invitacionesQueVienen.map(inv => {
+    const nombres = inv.invitados || [];
+    const principal = nombres[0] || '(sin nombre)';
+    const tamano = totalPersonas(inv);
+    const mesaActual = asignaciones[inv.id] || '';
+
+    const opciones = mesas
+      .filter(m => m.id === mesaActual || (ocupacionMesa(m.id) + tamano) <= m.capacidad)
+      .map(m => `<option value="${m.id}" ${m.id === mesaActual ? 'selected' : ''}>${escapar(m.nombre)} (${ocupacionMesa(m.id)}/${m.capacidad})</option>`)
+      .join('');
+
+    return `
+      <div class="asignacion-item">
+        <div class="asignacion-nombre">
+          ${escapar(principal)}${nombres.length > 1 ? ' +' + (nombres.length - 1) : ''}
+          <span>${nombres.length} ${nombres.length === 1 ? 'persona' : 'personas'}</span>
+        </div>
+        <select onchange="asignarMesa('${inv.id}', this.value)">
+          <option value="">Sin asignar</option>
+          ${opciones}
+        </select>
+      </div>`;
+  }).join('');
+}
+
+function asignarMesa(invId, mesaId){
+  if (mesaId) {
+    asignaciones[invId] = mesaId;
+  } else {
+    delete asignaciones[invId];
+  }
+  pintarMesas();
+  guardarMesasEnSheet();
+}
+
+let temporizadorGuardado = null;
+function guardarMesasEnSheet(){
+  clearTimeout(temporizadorGuardado);
+  temporizadorGuardado = setTimeout(async () => {
+    try{
+      await fetch(CONFIG.googleScriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: 'mesas', token: CONFIG.token, mesas, asignaciones })
+      });
+      const aviso = document.getElementById('guardado-aviso');
+      aviso.classList.add('visible');
+      setTimeout(() => aviso.classList.remove('visible'), 1500);
+    } catch(err){
+      // silencioso: se reintentará en el próximo cambio
+    }
+  }, 400);
+}
 </script>
 </body>
 </html>
