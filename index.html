@@ -222,6 +222,8 @@
     background-clip:text;
     color:transparent;
   }
+  .hero-nombres .letra.y{ display:block; }
+  .hero-nombres .palabra{ display:inline-block; white-space:nowrap; }
   .hero-nombres.letras-visibles .letra{ opacity:1; transform:translateY(0); }
   @media (prefers-reduced-motion: reduce){
     .hero-nombres .letra{ opacity:1; transform:none; transition:none; }
@@ -694,7 +696,7 @@ function letraSpan(caracter, claseExtra = ''){
   return html;
 }
 function textoEnLetras(texto){
-  return [...texto].map(c => letraSpan(c)).join('');
+  return `<span class="palabra">${[...texto].map(c => letraSpan(c)).join('')}</span>`;
 }
 
 document.getElementById('hero-nombres').innerHTML =
