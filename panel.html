@@ -45,6 +45,14 @@
     width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px;
     background:var(--paper); font-size:16px; color:var(--ink); text-align:center;
   }
+  .campo-clave{ position:relative; }
+  .campo-clave input{ padding-right:76px; }
+  .campo-clave button{
+    position:absolute; right:5px; top:50%; transform:translateY(-50%);
+    padding:7px 12px; border:none; border-radius:7px; background:var(--paper-soft);
+    color:var(--leaf); font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:.04em;
+  }
+  .campo-clave button:hover{ background:var(--line); }
   .acceso-caja button{
     width:100%; margin-top:14px; padding:13px; border:none; border-radius:10px;
     background:var(--leaf); color:#fff; font-family:'Outfit',sans-serif; font-size:13px;
@@ -133,7 +141,10 @@
       <span class="eyebrow">Solo para los novios</span>
       <h1>Panel de confirmaciones</h1>
       <p>Introduce la clave para ver quién viene</p>
-      <input type="password" id="input-token" placeholder="Clave" autocomplete="off">
+      <div class="campo-clave">
+        <input type="password" id="input-token" placeholder="Clave" autocomplete="off">
+        <button type="button" id="btn-ver-clave">Mostrar</button>
+      </div>
       <button id="btn-entrar">Entrar</button>
       <p id="acceso-error"></p>
     </div>
@@ -208,6 +219,17 @@ const pantallaAcceso = document.getElementById('acceso');
 const panel = document.getElementById('panel');
 const inputToken = document.getElementById('input-token');
 const errorAcceso = document.getElementById('acceso-error');
+
+document.getElementById('btn-ver-clave').addEventListener('click', () => {
+  const boton = document.getElementById('btn-ver-clave');
+  if (inputToken.type === 'password') {
+    inputToken.type = 'text';
+    boton.textContent = 'Ocultar';
+  } else {
+    inputToken.type = 'password';
+    boton.textContent = 'Mostrar';
+  }
+});
 
 function intentarEntrar(){
   if (inputToken.value.trim() === CONFIG.token && CONFIG.token !== "CAMBIA_ESTA_CLAVE") {
